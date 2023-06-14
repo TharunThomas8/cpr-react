@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 
-import cv, { set } from "@techstark/opencv-js";
+import cv from "@techstark/opencv-js";
 import "./styles.css";
 
 const SPACING = 16;
