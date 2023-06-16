@@ -43,6 +43,8 @@ const Screen1 = () => {
       setShowCountdown(false);
       clearInterval(countdownInterval);
       startTimeRef.current = performance.now();
+      const speech = new SpeechSynthesisUtterance("Begin");
+      speechSynthesis.speak(speech);
       console.log("Start time: ", startTimeRef.current);
     }, 5000);
 
@@ -238,7 +240,7 @@ const Screen1 = () => {
 
       setTot(prevTot => prevTot + 1);
       ltot = ltot + 1;
-      const cprRate = (ltot / (endTime - startTimeRef.current)) * 1000;
+      const cprRate = ((ltot / (endTime - startTimeRef.current))*60)*1000;
       console.log(startTimeRef.current, endTime, cprRate, ltot);
       setCPRrate(cprRate.toFixed(5));
     }
@@ -305,7 +307,8 @@ const Screen1 = () => {
       {!showCountdown && (
         <>
           <div className="totValue">Count: {tot}</div>
-          <div className="rateValue">Rate: {CPRrate} Compressions per s</div>
+          <div className="rateValue">Rate: {CPRrate}</div>
+          <h4>Maintain 100-120</h4>
         </>
       )}
     </div>
