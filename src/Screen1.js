@@ -20,12 +20,12 @@ let time_since_downward = 0;
 let breath_frames = 0;
 let comps_while_breathing = 0;
 let down_since_last_up = false;
-let ltot = 0;
+// let ltot = 0;
+let showCountdown = true;
 
 const Screen1 = () => {
   const [tot, setTot] = useState(0);
   const [CPRrate, setCPRrate] = useState(0);
-  const [showCountdown, setShowCountdown] = useState(true);
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
 
@@ -44,7 +44,7 @@ const Screen1 = () => {
       }, 1000);
 
       const countdownTimeout = setTimeout(() => {
-        setShowCountdown(false);
+        showCountdown = false;
         setTot(0);
         clearInterval(countdownInterval);
         startTimeRef.current = performance.now();
@@ -123,9 +123,6 @@ const Screen1 = () => {
       }
     }
 
-
-
-
     if (
       moving_regions > 16 &&
       ((totalUp > totalDown * 2 && totalUp > 20) ||
@@ -134,11 +131,12 @@ const Screen1 = () => {
       curr_movement = 1; // upward movement
       time_since_downward++;
       // end of breathing
+      // console.log("Total right: " + totalRight);
       if (breathing_movement === 1) {
         breathing_movement = 0;
         time_since_compression = 0;
         prev_movement = 1;
-        // console.log("Breath end at " + frame_no);
+        console.log("Breath end at " + frame_no);
         last_frame = -1;
         return frame_no * -1;
       } else {
@@ -159,10 +157,13 @@ const Screen1 = () => {
         ((totalRight > average_right * 5 && totalRight > totalDown / 3) ||
           (totalLeft > average_left * 5 && totalLeft > totalDown / 3))
       ) {
+        console.log("Total right: " + totalRight);
+        console.log("breathing movement" + breathing_movement);
+        console.log("Breath frames: " + breath_frames);
         if (breathing_movement === 0 && last_frame !== -1) {
           if (breath_frames === 2) {
             breathing_movement = 1;
-            // console.log("Breath start at " + frame_no);
+            console.log("Breath start at " + frame_no);
             breath_frames = 0;
             time_since_compression = 0;
             return -1;
@@ -187,6 +188,7 @@ const Screen1 = () => {
       } else if (down_since_last_up && time_since_downward <= 10) {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
+        console.log("num_compressions: " + num_compressions);
         prev_movement = curr_movement;
         time_since_compression = 0;
         comps_while_breathing = 0;
@@ -244,10 +246,10 @@ const Screen1 = () => {
     if (number !== -1) {
       const endTime = performance.now();
 
-      setTot(prevTot => prevTot + 1);
-      ltot = ltot + 1;
-      const cprRate = ((ltot / (endTime - startTimeRef.current)) * 60) * 1000;
-      console.log(startTimeRef.current, endTime, cprRate, ltot);
+      // setTot(prevTot => prevTot + 1);
+      // ltot = ltot + 1;
+      const cprRate = ((num_compressions / (endTime - startTimeRef.current)) * 60) * 1000;
+      // console.log(startTimeRef.current, endTime, cprRate, ltot);
       setCPRrate(cprRate.toFixed(5));
     }
 
@@ -273,12 +275,12 @@ const Screen1 = () => {
 
   const captureFrame = () => {
 
+    if (showCountdown) return;
     // Get front facing camera image
     const imageSrc = webcamRef.current.getScreenshot();
 
-    if (!showCountdown) return;
     if (!imageSrc) return;
-    
+
 
     img.onload = () => {
       canvas.width = img.width;
@@ -319,7 +321,7 @@ const Screen1 = () => {
       {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
       {!showCountdown && (
         <>
-          <div className="totValue">Count: {tot}</div>
+          <div className="totValue">Count: {num_compressions}</div>
           <div className="rateValue">Rate: {CPRrate}</div>
           <h4>Maintain 100-120</h4>
         </>
