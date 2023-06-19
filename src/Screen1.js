@@ -27,33 +27,39 @@ const Screen1 = () => {
   const [CPRrate, setCPRrate] = useState(0);
   const [showCountdown, setShowCountdown] = useState(true);
   const [countdown, setCountdown] = useState(5);
+  const [startCountdown, setStartCountdown] = React.useState(false);
+
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
 
   useEffect(() => {
 
-    const interval = setInterval(captureFrame, 30);
+    if (startCountdown) {
 
-    // Countdown logic
-    const countdownInterval = setInterval(() => {
-      setCountdown((prevCountdown) => prevCountdown - 1);
-    }, 1000);
+      const interval = setInterval(captureFrame, 30);
 
-    const countdownTimeout = setTimeout(() => {
-      setShowCountdown(false);
-      clearInterval(countdownInterval);
-      startTimeRef.current = performance.now();
-      const speech = new SpeechSynthesisUtterance("Begin");
-      speechSynthesis.speak(speech);
-      console.log("Start time: ", startTimeRef.current);
-    }, 5000);
+      // Countdown logic
+      const countdownInterval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
 
-    return () => {
-      clearInterval(interval);
-      clearInterval(countdownInterval);
-      clearTimeout(countdownTimeout);
-    };
-  }, []);
+      const countdownTimeout = setTimeout(() => {
+        setShowCountdown(false);
+        setTot(0);
+        clearInterval(countdownInterval);
+        startTimeRef.current = performance.now();
+        const speech = new SpeechSynthesisUtterance("Begin");
+        speechSynthesis.speak(speech);
+        console.log("Start time: ", startTimeRef.current);
+      }, 5000);
+
+      return () => {
+        clearInterval(interval);
+        clearInterval(countdownInterval);
+        clearTimeout(countdownTimeout);
+      };
+    }
+  }, [startCountdown]);
 
   let prevMat = null;
 
@@ -240,7 +246,7 @@ const Screen1 = () => {
 
       setTot(prevTot => prevTot + 1);
       ltot = ltot + 1;
-      const cprRate = ((ltot / (endTime - startTimeRef.current))*60)*1000;
+      const cprRate = ((ltot / (endTime - startTimeRef.current)) * 60) * 1000;
       console.log(startTimeRef.current, endTime, cprRate, ltot);
       setCPRrate(cprRate.toFixed(5));
     }
@@ -270,7 +276,9 @@ const Screen1 = () => {
     // Get front facing camera image
     const imageSrc = webcamRef.current.getScreenshot();
 
+    if (!showCountdown) return;
     if (!imageSrc) return;
+    
 
     img.onload = () => {
       canvas.width = img.width;
@@ -303,7 +311,12 @@ const Screen1 = () => {
           videoConstraints={{ width: 640, height: 480 }}
         />
       </div>
-      {showCountdown && <div className="countdown">{countdown}</div>}
+      {!startCountdown && (
+        <button onClick={() => setStartCountdown(prevState => !prevState)}>
+          {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
+        </button>
+      )}
+      {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
       {!showCountdown && (
         <>
           <div className="totValue">Count: {tot}</div>
