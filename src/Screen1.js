@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
-
+import { Link } from 'react-router-dom';
 import cv, { Mat } from "@techstark/opencv-js";
 import "./styles.css";
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
-const weights = new Array(1000 * 1000).fill(0);
+let weights = new Array(1000 * 1000).fill(0);
 let average_left = 0;
 let average_right = 0;
 let num_moving = 0;
@@ -24,7 +24,6 @@ let down_since_last_up = false;
 let showCountdown = true;
 
 const Screen1 = () => {
-  const [tot, setTot] = useState(0);
   const [CPRrate, setCPRrate] = useState(0);
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
@@ -33,6 +32,25 @@ const Screen1 = () => {
   const startTimeRef = useRef(null);
 
   useEffect(() => {
+
+    // setStartCountdown(false);
+
+    weights = new Array(1000 * 1000).fill(0);
+    average_left = 0;
+    average_right = 0;
+    num_moving = 0;
+    last_frame = 0;
+    num_compressions = 0;
+    frame_no = 0;
+    prev_movement = 0; //-1: down, 0: stationary, 1: up
+    breathing_movement = 0; //not breathing
+    time_since_compression = 0;
+    time_since_downward = 0;
+    breath_frames = 0;
+    comps_while_breathing = 0;
+    down_since_last_up = false;
+    // let ltot = 0;
+    showCountdown = true;
 
     if (startCountdown) {
 
@@ -45,7 +63,7 @@ const Screen1 = () => {
 
       const countdownTimeout = setTimeout(() => {
         showCountdown = false;
-        setTot(0);
+        // setTot(0);
         clearInterval(countdownInterval);
         startTimeRef.current = performance.now();
         const speech = new SpeechSynthesisUtterance("Begin");
@@ -277,31 +295,41 @@ const Screen1 = () => {
 
     if (showCountdown) return;
     // Get front facing camera image
-    const imageSrc = webcamRef.current.getScreenshot();
+    try {
+      const imageSrc = webcamRef.current.getScreenshot();
 
-    if (!imageSrc) return;
+      if (!imageSrc) return;
 
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const currentMat = cv.matFromImageData(imageData);
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const currentMat = cv.matFromImageData(imageData);
 
-      if (prevMat) {
-        processOutputImage(prevMat, currentMat);
-        prevMat.delete();
-      }
+        if (prevMat) {
+          processOutputImage(prevMat, currentMat);
+          prevMat.delete();
+        }
 
-      prevMat = currentMat;
-    };
+        prevMat = currentMat;
+      };
 
-    img.src = imageSrc;
+      img.src = imageSrc;
+
+    }
+    catch (err) {
+      console.log(err);
+    }
+
   };
 
   return (
     <div className="App">
+      <Link to="/">
+        <button>Home Page</button>
+      </Link>
       <h2>Real-time Optical Flow</h2>
       <div className="webcamContainer">
         <h3>Live Feed</h3>
