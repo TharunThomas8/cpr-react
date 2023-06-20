@@ -56,7 +56,7 @@ const Screen1 = () => {
 
     if (startCountdown) {
 
-      const interval = setInterval(captureFrame, 30);
+      const interval = setInterval(captureFrame, 20);
 
       // Countdown logic
       const countdownInterval = setInterval(() => {
