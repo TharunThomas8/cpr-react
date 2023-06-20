@@ -22,12 +22,13 @@ let comps_while_breathing = 0;
 let down_since_last_up = false;
 // let ltot = 0;
 let showCountdown = true;
-let breathChain = [];
+
 
 const Screen1 = () => {
   const [CPRrate, setCPRrate] = useState(0);
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
+  const [breathChain, setBreathChain] = useState([]);
 
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -52,7 +53,6 @@ const Screen1 = () => {
     down_since_last_up = false;
     // let ltot = 0;
     showCountdown = true;
-    breathChain = [];
 
     if (startCountdown) {
 
@@ -160,7 +160,7 @@ const Screen1 = () => {
         // Breath end
 
         console.log("Breath end at " + frame_no);
-        breathChain.push("E");
+        setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
 
         last_frame = -1;
         return frame_no * -1;
@@ -192,7 +192,7 @@ const Screen1 = () => {
             // Breath start
 
             console.log("Breath start at " + frame_no);
-            breathChain.push("S");
+            setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
 
             breath_frames = 0;
             time_since_compression = 0;
@@ -364,7 +364,7 @@ const Screen1 = () => {
           <div className="totValue">Count: {num_compressions}</div>
           <div className="rateValue">Rate: {CPRrate}</div>
           <h4>Maintain 100-120</h4>
-          <div className="breathChain">Breath Chain: {breathChain}</div>
+          <div className="breathSeq">Breath Chain: {breathChain}</div>
         </>
       )}
     </div>
