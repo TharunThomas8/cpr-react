@@ -22,10 +22,14 @@ let comps_while_breathing = 0;
 let down_since_last_up = false;
 // let ltot = 0;
 let showCountdown = true;
+let speedText = "";
+let currentSpeech = null;
+
 
 
 const Screen1 = () => {
   const [CPRrate, setCPRrate] = useState(0);
+
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
   const [breathChain, setBreathChain] = useState([]);
@@ -53,6 +57,8 @@ const Screen1 = () => {
     down_since_last_up = false;
     // let ltot = 0;
     showCountdown = true;
+    speedText = "";
+    currentSpeech = null;
 
     if (startCountdown) {
 
@@ -68,8 +74,7 @@ const Screen1 = () => {
         // setTot(0);
         clearInterval(countdownInterval);
         startTimeRef.current = performance.now();
-        const speech = new SpeechSynthesisUtterance("Begin");
-        speechSynthesis.speak(speech);
+        speakText("Begin");
         console.log("Start time: ", startTimeRef.current);
       }, 5000);
 
@@ -159,7 +164,7 @@ const Screen1 = () => {
 
         // Breath end
 
-        console.log("Breath end at " + frame_no);
+        // console.log("Breath end at " + frame_no);
         setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
 
         last_frame = -1;
@@ -191,7 +196,7 @@ const Screen1 = () => {
 
             // Breath start
 
-            console.log("Breath start at " + frame_no);
+            // console.log("Breath start at " + frame_no);
             setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
 
             breath_frames = 0;
@@ -218,7 +223,7 @@ const Screen1 = () => {
       } else if (down_since_last_up && time_since_downward <= 10) {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
-        console.log("num_compressions: " + num_compressions);
+        // console.log("num_compressions: " + num_compressions);
         prev_movement = curr_movement;
         time_since_compression = 0;
         comps_while_breathing = 0;
@@ -236,6 +241,31 @@ const Screen1 = () => {
     prev_movement = curr_movement;
     time_since_compression++;
     return -1;
+
+  };
+
+  const handlecprRate = (cprRate) => {
+
+    console.log(speedText);
+
+    let temp_speedText = "";
+    if (cprRate < 90) {
+      temp_speedText = "Speed up!";
+    } else if (cprRate < 100) {
+      temp_speedText = "Speed up slightly";
+    } else if (cprRate > 130) {
+      temp_speedText = "Slow Down!";
+    } else if (cprRate > 120) {
+      temp_speedText = "Slow down slightly";
+    } else {
+      temp_speedText = "Maintain Pace";
+    }
+
+
+    if (temp_speedText !== speedText) {
+      speedText = temp_speedText;
+      speakText(speedText);
+    }
 
   };
 
@@ -280,7 +310,9 @@ const Screen1 = () => {
       // ltot = ltot + 1;
       const cprRate = ((num_compressions / (endTime - startTimeRef.current)) * 60) * 1000;
       // console.log(startTimeRef.current, endTime, cprRate, ltot);
-      setCPRrate(cprRate.toFixed(5));
+      handlecprRate(cprRate);
+
+      setCPRrate(cprRate.toFixed(3));
     }
 
 
@@ -294,6 +326,22 @@ const Screen1 = () => {
     flow.delete();
     sm1.delete();
     sm2.delete();
+  };
+
+  const speakText = (text) => {
+    // If there is currently playing speech, stop it
+    if (currentSpeech) {
+      speechSynthesis.cancel();
+    }
+
+    // Create a new speech synthesis utterance
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Play the text as speech
+    speechSynthesis.speak(utterance);
+
+    // Update the currentSpeech variable
+    currentSpeech = utterance;
   };
 
   // Create the canvas and context outside the captureFrame function
@@ -362,7 +410,9 @@ const Screen1 = () => {
       {!showCountdown && (
         <>
           <div className="totValue">Count: {num_compressions}</div>
-          <div className="rateValue">Rate: {CPRrate}</div>
+          <div className="rateValue">
+            Rate: {speedText} ({CPRrate})
+          </div>
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
         </>
