@@ -24,6 +24,8 @@ let down_since_last_up = false;
 let showCountdown = true;
 let speedText = "";
 let currentSpeech = null;
+let breathStart = 0;
+let breathTotal = 0;
 
 
 
@@ -36,6 +38,7 @@ const Screen1 = () => {
 
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
+  
 
   useEffect(() => {
 
@@ -59,6 +62,9 @@ const Screen1 = () => {
     showCountdown = true;
     speedText = "";
     currentSpeech = null;
+    breathStart = 0;
+    breathTotal = 0;
+    
 
     if (startCountdown) {
 
@@ -165,6 +171,8 @@ const Screen1 = () => {
         // Breath end
 
         // console.log("Breath end at " + frame_no);
+        breathTotal += performance.now() - breathStart;
+        breathStart = 0;
         setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
 
         last_frame = -1;
@@ -197,6 +205,7 @@ const Screen1 = () => {
             // Breath start
 
             // console.log("Breath start at " + frame_no);
+            breathStart = performance.now();
             setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
 
             breath_frames = 0;
@@ -246,7 +255,7 @@ const Screen1 = () => {
 
   const handlecprRate = (cprRate) => {
 
-    console.log(speedText);
+    // console.log(speedText);
 
     let temp_speedText = "";
     if (cprRate < 90) {
@@ -308,8 +317,10 @@ const Screen1 = () => {
 
       // setTot(prevTot => prevTot + 1);
       // ltot = ltot + 1;
-      const cprRate = ((num_compressions / (endTime - startTimeRef.current)) * 60) * 1000;
+      const cprRate = ((num_compressions / ((endTime - startTimeRef.current) - breathTotal)) * 60) * 1000;
       // console.log(startTimeRef.current, endTime, cprRate, ltot);
+      console.log(breathTotal);
+
       handlecprRate(cprRate);
 
       setCPRrate(cprRate.toFixed(3));
