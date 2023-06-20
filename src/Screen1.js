@@ -22,6 +22,7 @@ let comps_while_breathing = 0;
 let down_since_last_up = false;
 // let ltot = 0;
 let showCountdown = true;
+let breathChain = [];
 
 const Screen1 = () => {
   const [CPRrate, setCPRrate] = useState(0);
@@ -51,6 +52,7 @@ const Screen1 = () => {
     down_since_last_up = false;
     // let ltot = 0;
     showCountdown = true;
+    breathChain = [];
 
     if (startCountdown) {
 
@@ -154,7 +156,12 @@ const Screen1 = () => {
         breathing_movement = 0;
         time_since_compression = 0;
         prev_movement = 1;
+
+        // Breath end
+
         console.log("Breath end at " + frame_no);
+        breathChain.push("E");
+
         last_frame = -1;
         return frame_no * -1;
       } else {
@@ -175,13 +182,18 @@ const Screen1 = () => {
         ((totalRight > average_right * 5 && totalRight > totalDown / 3) ||
           (totalLeft > average_left * 5 && totalLeft > totalDown / 3))
       ) {
-        console.log("Total right: " + totalRight);
-        console.log("breathing movement" + breathing_movement);
-        console.log("Breath frames: " + breath_frames);
+        // console.log("Total right: " + totalRight);
+        // console.log("breathing movement" + breathing_movement);
+        // console.log("Breath frames: " + breath_frames);
         if (breathing_movement === 0 && last_frame !== -1) {
           if (breath_frames === 2) {
             breathing_movement = 1;
+
+            // Breath start
+
             console.log("Breath start at " + frame_no);
+            breathChain.push("S");
+
             breath_frames = 0;
             time_since_compression = 0;
             return -1;
@@ -352,6 +364,7 @@ const Screen1 = () => {
           <div className="totValue">Count: {num_compressions}</div>
           <div className="rateValue">Rate: {CPRrate}</div>
           <h4>Maintain 100-120</h4>
+          <div className="breathChain">Breath Chain: {breathChain}</div>
         </>
       )}
     </div>
