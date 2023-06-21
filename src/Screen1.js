@@ -26,7 +26,10 @@ let speedText = "";
 let currentSpeech = null;
 let breathStart = 0;
 let breathTotal = 0;
-
+let compressions_in_phase = 0;
+let breathBlocker = false;
+let prevBloc = false;
+let breathText = "";
 
 
 const Screen1 = () => {
@@ -35,10 +38,9 @@ const Screen1 = () => {
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
   const [breathChain, setBreathChain] = useState([]);
-
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
-  
+
 
   useEffect(() => {
 
@@ -64,7 +66,10 @@ const Screen1 = () => {
     currentSpeech = null;
     breathStart = 0;
     breathTotal = 0;
-    
+    compressions_in_phase = 0;
+    breathBlocker = false;
+    prevBloc = false;
+
 
     if (startCountdown) {
 
@@ -92,7 +97,24 @@ const Screen1 = () => {
     }
   }, [startCountdown]);
 
+
+
+
   let prevMat = null;
+
+  function startTimer() {
+    // Start a timer
+    // console.log('Timer started!');
+    const timer = setTimeout(() => {
+      console.log('Timer completed!');
+      speakText("End Breathing", 2);
+      breathText = "";
+      handlecprRate(CPRrate, true);
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    // Cancel the timer before it completes
+    // clearTimeout(timer);
+  }
 
   const drawOpticalFlow = (flow) => {
 
@@ -206,7 +228,9 @@ const Screen1 = () => {
 
             // console.log("Breath start at " + frame_no);
             breathStart = performance.now();
+            compressions_in_phase = 0;
             setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
+
 
             breath_frames = 0;
             time_since_compression = 0;
@@ -232,6 +256,7 @@ const Screen1 = () => {
       } else if (down_since_last_up && time_since_downward <= 10) {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
+        compressions_in_phase++;
         // console.log("num_compressions: " + num_compressions);
         prev_movement = curr_movement;
         time_since_compression = 0;
@@ -253,7 +278,7 @@ const Screen1 = () => {
 
   };
 
-  const handlecprRate = (cprRate) => {
+  const handlecprRate = (cprRate, flag = false) => {
 
     // console.log(speedText);
 
@@ -261,17 +286,21 @@ const Screen1 = () => {
     if (cprRate < 90) {
       temp_speedText = "Speed up!";
     } else if (cprRate < 100) {
-      temp_speedText = "Speed up slightly";
+      temp_speedText = "slightly Speed up";
     } else if (cprRate > 130) {
       temp_speedText = "Slow Down!";
     } else if (cprRate > 120) {
-      temp_speedText = "Slow down slightly";
+      temp_speedText = "slightly Slow down";
     } else {
       temp_speedText = "Maintain Pace";
     }
 
-
-    if (temp_speedText !== speedText) {
+    if (!flag) {
+      if (temp_speedText !== speedText) {
+        speedText = temp_speedText;
+        speakText(speedText);
+      }
+    } else {
       speedText = temp_speedText;
       speakText(speedText);
     }
@@ -319,7 +348,7 @@ const Screen1 = () => {
       // ltot = ltot + 1;
       const cprRate = ((num_compressions / ((endTime - startTimeRef.current) - breathTotal)) * 60) * 1000;
       // console.log(startTimeRef.current, endTime, cprRate, ltot);
-      console.log(breathTotal);
+      // console.log(breathTotal);
 
       handlecprRate(cprRate);
 
@@ -339,22 +368,50 @@ const Screen1 = () => {
     sm2.delete();
   };
 
-  const speakText = (text) => {
+  const speakText = (text, control = 0) => {
     // If there is currently playing speech, stop it
-    if (currentSpeech) {
-      speechSynthesis.cancel();
+
+    if (!breathBlocker) {
+      if (currentSpeech) {
+        if (!prevBloc) {
+          speechSynthesis.cancel();
+        }
+      }
+
+      // Create a new speech synthesis utterance
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      // Play the text as speech
+      speechSynthesis.speak(utterance);
+
+      // Update the currentSpeech variable
+      currentSpeech = utterance;
+
+      if (control === 1) {
+        breathBlocker = true;
+      }
+      prevBloc = false;
     }
+    if (control === 2) {
+      breathBlocker = false;
 
-    // Create a new speech synthesis utterance
-    const utterance = new SpeechSynthesisUtterance(text);
+      prevBloc = true;
+      // Create a new speech synthesis utterance
+      const utterance = new SpeechSynthesisUtterance(text);
 
-    // Play the text as speech
-    speechSynthesis.speak(utterance);
+      // Play the text as speech
+      speechSynthesis.speak(utterance);
 
-    // Update the currentSpeech variable
-    currentSpeech = utterance;
+      // Update the currentSpeech variable
+      currentSpeech = utterance;
+    }
   };
 
+  if (compressions_in_phase === 30) {
+    speakText("Begin breathing", 1);
+    breathText = "Perform breathing";
+    startTimer();
+  }
   // Create the canvas and context outside the captureFrame function
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
@@ -426,6 +483,7 @@ const Screen1 = () => {
           </div>
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
+          <div className="breathText">{breathText}</div>
         </>
       )}
     </div>
