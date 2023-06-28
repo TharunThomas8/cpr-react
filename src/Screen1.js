@@ -3,6 +3,12 @@ import Webcam from "react-webcam";
 import { Link } from 'react-router-dom';
 import cv, { Mat } from "@techstark/opencv-js";
 import "./styles.css";
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { api_base, page_base } from "./config";
+
+// const api_base = "http://127.0.0.1:5000";
+// const page_base = "http://127.0.0.1:3000";
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
@@ -33,6 +39,8 @@ let breathText = "";
 
 
 const Screen1 = () => {
+
+  const { userId } = useParams();
   const [CPRrate, setCPRrate] = useState(0);
 
   const [countdown, setCountdown] = useState(5);
@@ -40,6 +48,12 @@ const Screen1 = () => {
   const [breathChain, setBreathChain] = useState([]);
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
+  const [selectedOption, setSelectedOption] = useState('With Feedback');
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+    // console.log(selectedOption);
+  };
 
 
   useEffect(() => {
@@ -70,6 +84,8 @@ const Screen1 = () => {
     breathBlocker = false;
     prevBloc = false;
 
+    // const history = useHistory();
+
 
     if (startCountdown) {
 
@@ -85,8 +101,15 @@ const Screen1 = () => {
         // setTot(0);
         clearInterval(countdownInterval);
         startTimeRef.current = performance.now();
-        speakText("Begin");
+
+        // Create a new speech synthesis utterance
+        const utterance = new SpeechSynthesisUtterance("Begin");
+        // Play the text as speech
+        speechSynthesis.speak(utterance);
+
         console.log("Start time: ", startTimeRef.current);
+        console.log(userId);
+        sendDataAndNavigate();
       }, 5000);
 
       return () => {
@@ -98,7 +121,30 @@ const Screen1 = () => {
   }, [startCountdown]);
 
 
+  const sendDataAndNavigate = async () => {
+    // Wait for 60 seconds
+    await new Promise(resolve => setTimeout(resolve, 10000));
 
+    try {
+      // Send the data as a POST request
+      let json_data = {
+        userId: userId,
+        cprRate: CPRrate,
+        cprFraction: (((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100,
+        compression: num_compressions,
+        feedback: selectedOption === 'With Feedback',
+      }
+
+      // console.log(json_data);
+
+      await axios.post(api_base + '/save', json_data);
+
+      // Navigate to another URL
+      window.location.href = page_base + '/';
+    } catch (error) {
+      console.error('Error sending data:', error);
+    }
+  };
 
   let prevMat = null;
 
@@ -106,7 +152,7 @@ const Screen1 = () => {
     // Start a timer
     // console.log('Timer started!');
     const timer = setTimeout(() => {
-      console.log('Timer completed!');
+      // console.log('Timer completed!');
       speakText("End Breathing", 2);
       breathText = "";
       handlecprRate(CPRrate, true);
@@ -347,8 +393,9 @@ const Screen1 = () => {
       // setTot(prevTot => prevTot + 1);
       // ltot = ltot + 1;
       const cprRate = ((num_compressions / ((endTime - startTimeRef.current) - breathTotal)) * 60) * 1000;
-      // console.log(startTimeRef.current, endTime, cprRate, ltot);
-      // console.log(breathTotal);
+      
+      console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
+      // console.log(breathTotal, endTime - startTimeRef.current);
 
       handlecprRate(cprRate);
 
@@ -369,8 +416,9 @@ const Screen1 = () => {
   };
 
   const speakText = (text, control = 0) => {
-    // If there is currently playing speech, stop it
 
+    if (selectedOption === 'Without Feedback') return;
+    // If there is currently playing speech, stop it
     if (!breathBlocker) {
       if (currentSpeech) {
         if (!prevBloc) {
@@ -470,12 +518,35 @@ const Screen1 = () => {
         />
       </div>
       {!startCountdown && (
-        <button onClick={() => setStartCountdown(prevState => !prevState)}>
-          {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
-        </button>
+        <>
+          <button onClick={() => setStartCountdown(prevState => !prevState)}>
+            {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
+          </button>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="With Feedback"
+                checked={selectedOption === 'With Feedback'}
+                onChange={handleOptionChange}
+              />
+              With Feedback
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="Without Feedback"
+                checked={selectedOption === 'Without Feedback'}
+                onChange={handleOptionChange}
+              />
+              Without Feedback
+            </label>
+          </div>
+        </>
+
       )}
       {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
-      {!showCountdown && (
+      {!showCountdown && selectedOption === "With Feedback" && (
         <>
           <div className="totValue">Count: {num_compressions}</div>
           <div className="rateValue">
