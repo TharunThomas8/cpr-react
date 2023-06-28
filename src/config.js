@@ -1,5 +1,5 @@
 
-const api_base = "http://127.0.0.1:5000";
-const page_base = "http://127.0.0.1:3000";
+const api_base = "https://cpr-backend.vercel.app/";
+const page_base = "https://cpr-react.vercel.app/";
 
 export { api_base, page_base };
