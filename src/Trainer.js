@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { api_base, page_base } from './config';
+import { api_base } from './config';
 
 const Trainer = () => {
     const [trainerId, setTrainerId] = useState(sessionStorage.getItem('trainerId') || '');
@@ -23,7 +23,7 @@ const Trainer = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${api_base}/get-users/${trainerId}`);
+            const response = await axios.get(`/get-users/${trainerId}`);
             const responseData = response.data;
             if (responseData.success) {
                 setUsers(responseData.users);

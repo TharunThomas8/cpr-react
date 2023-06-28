@@ -21,7 +21,7 @@ const HomePage = () => {
     if (userId) {
       // Make Axios GET request with the user ID
 
-      axios.get(api_base + '/get-last/' + userId)
+      axios.get( '/get-last/' + userId)
         .then(response => {
           const responseData = response.data;
           console.log(responseData);
