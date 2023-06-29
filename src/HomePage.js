@@ -20,8 +20,16 @@ const HomePage = () => {
   const fetchData = () => {
     if (userId) {
       // Make Axios GET request with the user ID
+      const options = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic <authString>',
+          'Access-Control-Allow-Origin': '*',
+        }
+      };
 
-      axios.get( '/get-last/' + userId)
+
+      axios.get('/get-last/' + userId, options)
         .then(response => {
           const responseData = response.data;
           console.log(responseData);
