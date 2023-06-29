@@ -19,15 +19,11 @@ const HomePage = () => {
 
   const fetchData = () => {
     if (userId) {
-      fetch(`/get-last/${userId}`)
+      // Make Axios GET request with the user ID
+
+      axios.get( '/get-last/' + userId)
         .then(response => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            throw new Error('Network response was not OK.');
-          }
-        })
-        .then(responseData => {
+          const responseData = response.data;
           console.log(responseData);
           if (responseData.success) {
             setData(responseData.data); // Access the CPR details array
@@ -44,7 +40,6 @@ const HomePage = () => {
           setUserExists(false);
         });
     }
-
   };
 
   const handleTandC = (temp_data) => {
