@@ -19,11 +19,11 @@ const HomePage = () => {
 
   const fetchData = () => {
     if (userId) {
-      // Make Fetch GET request with the user ID
+      // Make Axios GET request with the user ID
 
-      fetch(`/get-last/${userId}`)
-        .then(response => response.json())
-        .then(responseData => {
+      axios.get('https://cpr-backend.vercel.app/get-last/' + userId)
+        .then(response => {
+          const responseData = response.data;
           console.log(responseData);
           if (responseData.success) {
             setData(responseData.data); // Access the CPR details array
@@ -32,15 +32,16 @@ const HomePage = () => {
             setIsDataFetched(true);
             setUserExists(true);
           } else {
+            // console.log("Failed");
             setUserExists(false);
           }
         })
         .catch(error => {
+          // console.log("Failed With Error");
           console.log(error);
           setUserExists(false);
         });
     }
-
   };
 
   const handleTandC = (temp_data) => {
