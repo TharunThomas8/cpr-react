@@ -29,6 +29,8 @@ const Trainer = () => {
                 setUsers(responseData.users);
                 setShowForm(false);
             } else {
+                console.log("ERROR HERE?");
+                console.log(responseData);
                 setError(responseData.message);
             }
         } catch (error) {
