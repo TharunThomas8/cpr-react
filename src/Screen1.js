@@ -137,7 +137,7 @@ const Screen1 = () => {
 
       // console.log(json_data);
 
-      await axios.post( '/save', json_data);
+      await axios.post( api_base+'save', json_data);
 
       // Navigate to another URL
       window.location.href = page_base + '/';

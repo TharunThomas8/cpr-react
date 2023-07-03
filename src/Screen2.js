@@ -21,7 +21,7 @@ const Screen2 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`/get-user-data/${userId}`);
+        const response = await axios.get(api_base+'get-user-data/${userId}');
         const responseData = response.data;
         if (responseData.success) {
           setUserData(responseData.data);
