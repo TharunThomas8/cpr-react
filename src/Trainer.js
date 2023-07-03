@@ -33,6 +33,7 @@ const Trainer = () => {
             }
         } catch (error) {
             setError('An error occurred while fetching users.');
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
