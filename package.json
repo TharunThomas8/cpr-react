@@ -47,4 +47,5 @@
         "@capacitor/cli": "^5.0.5"
     },
     "proxy": "https://cpr-backend.vercel.app/"
+
 }
