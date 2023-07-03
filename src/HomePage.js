@@ -21,7 +21,7 @@ const HomePage = () => {
     if (userId) {
       // Make Axios GET request with the user ID
 
-      axios.get('https://cpr-backend.vercel.app/get-last/' + userId)
+      axios.get(api_base+'get-last/' + userId)
         .then(response => {
           const responseData = response.data;
           console.log(responseData);
