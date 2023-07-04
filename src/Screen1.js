@@ -36,12 +36,13 @@ let compressions_in_phase = 0;
 let breathBlocker = false;
 let prevBloc = false;
 let breathText = "";
+let CPRrate = 0;
 
 
 const Screen1 = () => {
 
   const { userId } = useParams();
-  const [CPRrate, setCPRrate] = useState(0);
+  // const [CPRrate, setCPRrate] = useState(0);
 
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
@@ -83,6 +84,7 @@ const Screen1 = () => {
     compressions_in_phase = 0;
     breathBlocker = false;
     prevBloc = false;
+    CPRrate = 0;
 
     // const history = useHistory();
 
@@ -132,15 +134,16 @@ const Screen1 = () => {
         cprRate: CPRrate,
         cprFraction: (((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100,
         compression: num_compressions,
+        totalTime: (performance.now() - startTimeRef.current)/1000,
         feedback: selectedOption === 'With Feedback',
       }
 
-      // console.log(json_data);
+      console.log(json_data);
 
       await axios.post( api_base+'save', json_data);
 
       // Navigate to another URL
-      window.location.href = page_base + '/';
+      window.location.href = page_base;
     } catch (error) {
       console.error('Error sending data:', error);
     }
@@ -399,7 +402,7 @@ const Screen1 = () => {
 
       handlecprRate(cprRate);
 
-      setCPRrate(cprRate.toFixed(3));
+      CPRrate = (cprRate.toFixed(3));
     }
 
 

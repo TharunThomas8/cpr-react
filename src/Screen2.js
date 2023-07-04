@@ -21,7 +21,7 @@ const Screen2 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log(userId);
+        // console.log(userId);
         const response = await axios.get(api_base+'get-user-data/'+userId);
         const responseData = response.data;
         if (responseData.success) {
@@ -188,8 +188,8 @@ const Screen2 = () => {
             />
             <VictoryLine
               data={[
-                { x: 0, y: 0.82 },
-                { x: userData.cprDetails.length - 1, y: 0.82 },
+                { x: 0, y: 80 },
+                { x: userData.cprDetails.length - 1, y: 80 },
               ]}
               style={{
                 data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -197,8 +197,8 @@ const Screen2 = () => {
             />
             <VictoryLine
               data={[
-                { x: 0, y: 0.78 },
-                { x: userData.cprDetails.length - 1, y: 0.78 },
+                { x: 0, y: 60 },
+                { x: userData.cprDetails.length - 1, y: 60 },
               ]}
               style={{
                 data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -206,11 +206,11 @@ const Screen2 = () => {
             />
             <VictoryArea
               data={[
-                { x: 0, y: 0.78 },
-                { x: userData.cprDetails.length - 1, y: 0.78 },
+                { x: 0, y: 60 },
+                { x: userData.cprDetails.length - 1, y: 60 },
               ]}
-              y0={() => 0.82}
-              y1={() => 0.82}
+              y0={() => 80}
+              y1={() => 80}
               style={{
                 data: { fill: 'lightgreen', opacity: 0.3 },
               }}
