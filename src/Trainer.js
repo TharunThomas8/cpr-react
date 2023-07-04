@@ -23,7 +23,7 @@ const Trainer = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get(api_base+'get-users/'+trainerId);
+            const response = await axios.get(api_base+'get-users/${trainerId}');
             const responseData = response.data;
             if (responseData.success) {
                 setUsers(responseData.users);
@@ -43,7 +43,7 @@ const Trainer = () => {
 
     const addUser = async () => {
         try {
-            const response = await axios.post(api_base+'add-user', {
+            const response = await axios.post(api_base+`add-user`, {
                 trainerId,
                 userId: newUser
             });
