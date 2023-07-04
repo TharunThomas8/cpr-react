@@ -6,6 +6,7 @@ import "./styles.css";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base } from "./config";
+// import { set } from "mongoose";
 
 // const api_base = "http://127.0.0.1:5000";
 // const page_base = "http://127.0.0.1:3000";
@@ -36,13 +37,13 @@ let compressions_in_phase = 0;
 let breathBlocker = false;
 let prevBloc = false;
 let breathText = "";
-let CPRrate = 0;
+let finalCPR = 0;
 
 
 const Screen1 = () => {
 
   const { userId } = useParams();
-  // const [CPRrate, setCPRrate] = useState(0);
+  const [CPRrate, setCPRrate] = useState(0);
 
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
@@ -50,6 +51,7 @@ const Screen1 = () => {
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState('With Feedback');
+  // const [finalCPR, setfinalCPR] = useState(0);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
@@ -84,7 +86,8 @@ const Screen1 = () => {
     compressions_in_phase = 0;
     breathBlocker = false;
     prevBloc = false;
-    CPRrate = 0;
+    // CPRrate = 0;
+    finalCPR = 0;
 
     // const history = useHistory();
 
@@ -111,6 +114,7 @@ const Screen1 = () => {
 
         console.log("Start time: ", startTimeRef.current);
         console.log(userId);
+        
         sendDataAndNavigate();
       }, 5000);
 
@@ -123,31 +127,36 @@ const Screen1 = () => {
   }, [startCountdown]);
 
 
-  const sendDataAndNavigate = async () => {
+  const sendDataAndNavigate = () => {
     // Wait for 60 seconds
-    await new Promise(resolve => setTimeout(resolve, 60000));
-
-    try {
-      // Send the data as a POST request
-      let json_data = {
-        userId: userId,
-        cprRate: CPRrate,
-        cprFraction: (((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100,
-        compression: num_compressions,
-        totalTime: (performance.now() - startTimeRef.current)/1000,
-        feedback: selectedOption === 'With Feedback',
+    setTimeout(() => {
+      try {
+        // Send the data as a POST request
+        let json_data = {
+          userId: userId,
+          cprRate: finalCPR,
+          cprFraction: (((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100,
+          compression: num_compressions,
+          totalTime: (performance.now() - startTimeRef.current) / 1000,
+          feedback: selectedOption === 'With Feedback',
+        };
+  
+        // console.log(json_data);
+  
+        axios.post(api_base + 'save', json_data)
+          .then(() => {
+            // Navigate to another URL
+            window.location.href = page_base;
+          })
+          .catch(error => {
+            console.error('Error sending data:', error);
+          });
+      } catch (error) {
+        console.error('Error sending data:', error);
       }
-
-      console.log(json_data);
-
-      await axios.post( api_base+'save', json_data);
-
-      // Navigate to another URL
-      window.location.href = page_base;
-    } catch (error) {
-      console.error('Error sending data:', error);
-    }
+    }, 10000);
   };
+  
 
   let prevMat = null;
 
@@ -402,7 +411,8 @@ const Screen1 = () => {
 
       handlecprRate(cprRate);
 
-      CPRrate = (cprRate.toFixed(3));
+      setCPRrate(cprRate.toFixed(3));
+      finalCPR = cprRate.toFixed(3);
     }
 
 
