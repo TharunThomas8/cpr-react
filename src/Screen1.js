@@ -125,7 +125,7 @@ const Screen1 = () => {
 
   const sendDataAndNavigate = async () => {
     // Wait for 60 seconds
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    await new Promise(resolve => setTimeout(resolve, 60000));
 
     try {
       // Send the data as a POST request

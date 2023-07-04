@@ -112,7 +112,7 @@ const Trainer = () => {
                     ))}
                 </ul>
             ) : (
-                <div>No users found.</div>
+                <div>No users assigned.</div>
             )}
             <Link to="/">Go Back</Link>
         </div>
