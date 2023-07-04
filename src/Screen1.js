@@ -154,7 +154,7 @@ const Screen1 = () => {
       } catch (error) {
         console.error('Error sending data:', error);
       }
-    }, 10000);
+    }, 60000);
   };
   
 
