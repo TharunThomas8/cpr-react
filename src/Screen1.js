@@ -135,9 +135,10 @@ const Screen1 = () => {
         let json_data = {
           userId: userId,
           cprRate: finalCPR,
-          cprFraction: (((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100,
+          cprFraction: ((((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100).toFixed(3),
           compression: num_compressions,
           totalTime: (performance.now() - startTimeRef.current) / 1000,
+          breaths: 10,
           feedback: selectedOption === 'With Feedback',
         };
   
@@ -407,7 +408,7 @@ const Screen1 = () => {
       // ltot = ltot + 1;
       const cprRate = ((num_compressions / ((endTime - startTimeRef.current) - breathTotal)) * 60) * 1000;
       
-      console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
+      // console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
       // console.log(breathTotal, endTime - startTimeRef.current);
 
       handlecprRate(cprRate);
@@ -469,7 +470,7 @@ const Screen1 = () => {
     }
   };
 
-  // console.log(compressions_in_phase);
+  // console.log(breathChain.length/2);
 
 
   if (compressions_in_phase === 30) {
