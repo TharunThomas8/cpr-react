@@ -167,6 +167,7 @@ const Screen1 = () => {
       // console.log('Timer completed!');
       speakText("End Breathing", 2);
       breathText = "";
+      compressions_in_phase = 0;
       handlecprRate(CPRrate, true);
     }, 5000); // 5000 milliseconds = 5 seconds
 
@@ -467,6 +468,9 @@ const Screen1 = () => {
       currentSpeech = utterance;
     }
   };
+
+  // console.log(compressions_in_phase);
+
 
   if (compressions_in_phase === 30) {
     speakText("Begin breathing", 1);
