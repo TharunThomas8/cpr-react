@@ -38,6 +38,8 @@ let breathBlocker = false;
 let prevBloc = false;
 let breathText = "";
 let finalCPR = 0;
+let repsArray = [];
+
 
 
 const Screen1 = () => {
@@ -88,6 +90,7 @@ const Screen1 = () => {
     prevBloc = false;
     // CPRrate = 0;
     finalCPR = 0;
+    repsArray = [];
 
     // const history = useHistory();
 
@@ -140,6 +143,7 @@ const Screen1 = () => {
           totalTime: (performance.now() - startTimeRef.current) / 1000,
           breaths: 10,
           feedback: selectedOption === 'With Feedback',
+          reps: repsArray
         };
   
         // console.log(json_data);
@@ -317,6 +321,7 @@ const Screen1 = () => {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
         compressions_in_phase++;
+        repsArray.push({ repNumber: num_compressions, repTime: performance.now() - startTimeRef.current });
         // console.log("num_compressions: " + num_compressions);
         prev_movement = curr_movement;
         time_since_compression = 0;
