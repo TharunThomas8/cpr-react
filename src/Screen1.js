@@ -5,11 +5,8 @@ import cv, { Mat } from "@techstark/opencv-js";
 import "./styles.css";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { api_base, page_base } from "./config";
+import { api_base, page_base, duration } from "./config";
 // import { set } from "mongoose";
-
-// const api_base = "http://127.0.0.1:5000";
-// const page_base = "http://127.0.0.1:3000";
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
@@ -108,16 +105,17 @@ const Screen1 = () => {
         showCountdown = false;
         // setTot(0);
         clearInterval(countdownInterval);
-        startTimeRef.current = performance.now();
+        
 
         // Create a new speech synthesis utterance
         const utterance = new SpeechSynthesisUtterance("Begin");
         // Play the text as speech
         speechSynthesis.speak(utterance);
 
+        startTimeRef.current = performance.now();
         console.log("Start time: ", startTimeRef.current);
         console.log(userId);
-        
+
         sendDataAndNavigate();
       }, 5000);
 
@@ -159,7 +157,7 @@ const Screen1 = () => {
       } catch (error) {
         console.error('Error sending data:', error);
       }
-    }, 60000);
+    }, duration);
   };
   
 
@@ -321,7 +319,7 @@ const Screen1 = () => {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
         compressions_in_phase++;
-        repsArray.push({ repNumber: num_compressions, repTime: performance.now() - startTimeRef.current });
+        repsArray.push({ repTime: performance.now() - startTimeRef.current });
         // console.log("num_compressions: " + num_compressions);
         prev_movement = curr_movement;
         time_since_compression = 0;
@@ -411,7 +409,7 @@ const Screen1 = () => {
 
       // setTot(prevTot => prevTot + 1);
       // ltot = ltot + 1;
-      const cprRate = ((num_compressions / ((endTime - startTimeRef.current) - breathTotal)) * 60) * 1000;
+      const cprRate = (num_compressions / (((endTime - startTimeRef.current) - breathTotal) /60000) );
       
       // console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
       // console.log(breathTotal, endTime - startTimeRef.current);
