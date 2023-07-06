@@ -135,7 +135,7 @@ const Screen1 = () => {
         // Send the data as a POST request
         let json_data = {
           userId: userId,
-          cprRate: finalCPR,
+          cprRate: calculatefinalCPR(repsArray),
           // cprFraction: ((((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100).toFixed(3),
           cprFraction: calculateCPRFraction(repsArray),
           compression: num_compressions,
@@ -533,7 +533,7 @@ const Screen1 = () => {
         if (!breathEndTime) {
           breathEndTime = currentTime;
           // console.log(breathingTime, breathEndTime, breathStartTime);
-          
+
         }
 
         breathingTime += breathEndTime - breathStartTime;
@@ -549,115 +549,141 @@ const Screen1 = () => {
 
     // round cprFraction to 3 decimal places using Fixed-point notation
     cprFraction = cprFraction.toFixed(3);
-    
+
     return cprFraction;
   }
 
+  const calculatefinalCPR = (repTimes) => {
+    let sets = [];
+    let cprRates = [];
 
-  if (compressions_in_phase === 30) {
-    speakText("Begin breathing", 1);
-    breathText = "Perform breathing";
-    startTimer();
+    for (let i = 0; i < repTimes.length - 2; i++) {
+      let set = repTimes.slice(i, i + 3);
+
+      // Check if the set contains exactly 3 repTime values
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
+      }
+    }
+
+    for (let set of sets) {
+      let totalDuration = set[2] - set[0];
+      let cprRate = 3 / (totalDuration / 60000);
+      cprRates.push(cprRate);
+    }
+
+    let totalCPRRate = cprRates.reduce((sum, rate) => sum + rate, 0);
+    let avgCPRRate = totalCPRRate / cprRates.length;
+
+    return avgCPRRate;
   }
-  // Create the canvas and context outside the captureFrame function
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  // Reuse the same Image object
-  const img = new Image();
-
-  const captureFrame = () => {
-
-    if (showCountdown) return;
-    // Get front facing camera image
-    try {
-      const imageSrc = webcamRef.current.getScreenshot();
-
-      if (!imageSrc) return;
 
 
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const currentMat = cv.matFromImageData(imageData);
-
-        if (prevMat) {
-          processOutputImage(prevMat, currentMat);
-          prevMat.delete();
-        }
-
-        prevMat = currentMat;
-      };
-
-      img.src = imageSrc;
-
+    if (compressions_in_phase === 30) {
+      speakText("Begin breathing", 1);
+      breathText = "Perform breathing";
+      startTimer();
     }
-    catch (err) {
-      console.log(err);
-    }
+    // Create the canvas and context outside the captureFrame function
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
+    // Reuse the same Image object
+    const img = new Image();
+
+    const captureFrame = () => {
+
+      if (showCountdown) return;
+      // Get front facing camera image
+      try {
+        const imageSrc = webcamRef.current.getScreenshot();
+
+        if (!imageSrc) return;
+
+
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const currentMat = cv.matFromImageData(imageData);
+
+          if (prevMat) {
+            processOutputImage(prevMat, currentMat);
+            prevMat.delete();
+          }
+
+          prevMat = currentMat;
+        };
+
+        img.src = imageSrc;
+
+      }
+      catch (err) {
+        console.log(err);
+      }
+
+    };
+
+    return (
+      <div className="App">
+        <Link to="/">
+          <button>Home Page</button>
+        </Link>
+        <h2>Real-time Optical Flow</h2>
+        <div className="webcamContainer">
+          <h3>Live Feed</h3>
+          <Webcam
+            ref={webcamRef}
+            className="webcam"
+            mirrored
+            screenshotFormat="image/jpeg"
+            videoConstraints={{ width: 640, height: 480 }}
+          />
+        </div>
+        {!startCountdown && (
+          <>
+            <button onClick={() => setStartCountdown(prevState => !prevState)}>
+              {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
+            </button>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  value="With Feedback"
+                  checked={selectedOption === 'With Feedback'}
+                  onChange={handleOptionChange}
+                />
+                With Feedback
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="Without Feedback"
+                  checked={selectedOption === 'Without Feedback'}
+                  onChange={handleOptionChange}
+                />
+                Without Feedback
+              </label>
+            </div>
+          </>
+
+        )}
+        {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
+        {!showCountdown && selectedOption === "With Feedback" && (
+          <>
+            <div className="totValue">Count: {num_compressions}</div>
+            <div className="rateValue">
+              Rate: {speedText} ({CPRrate})
+            </div>
+            <h4>Maintain 100-120</h4>
+            <div className="breathSeq">Breath Chain: {breathChain}</div>
+            <div className="breathText">{breathText}</div>
+          </>
+        )}
+      </div>
+    );
   };
 
-  return (
-    <div className="App">
-      <Link to="/">
-        <button>Home Page</button>
-      </Link>
-      <h2>Real-time Optical Flow</h2>
-      <div className="webcamContainer">
-        <h3>Live Feed</h3>
-        <Webcam
-          ref={webcamRef}
-          className="webcam"
-          mirrored
-          screenshotFormat="image/jpeg"
-          videoConstraints={{ width: 640, height: 480 }}
-        />
-      </div>
-      {!startCountdown && (
-        <>
-          <button onClick={() => setStartCountdown(prevState => !prevState)}>
-            {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
-          </button>
-          <div>
-            <label>
-              <input
-                type="radio"
-                value="With Feedback"
-                checked={selectedOption === 'With Feedback'}
-                onChange={handleOptionChange}
-              />
-              With Feedback
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="Without Feedback"
-                checked={selectedOption === 'Without Feedback'}
-                onChange={handleOptionChange}
-              />
-              Without Feedback
-            </label>
-          </div>
-        </>
-
-      )}
-      {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
-      {!showCountdown && selectedOption === "With Feedback" && (
-        <>
-          <div className="totValue">Count: {num_compressions}</div>
-          <div className="rateValue">
-            Rate: {speedText} ({CPRrate})
-          </div>
-          <h4>Maintain 100-120</h4>
-          <div className="breathSeq">Breath Chain: {breathChain}</div>
-          <div className="breathText">{breathText}</div>
-        </>
-      )}
-    </div>
-  );
-};
-
-export default Screen1;
+  export default Screen1;

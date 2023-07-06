@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
-import { VictoryChart, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
+import { VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
 import { api_base } from './config';
+import ReactDOM from 'react-dom';
 
 // const api_base = "http://127.0.0.1:5000";
 
@@ -17,6 +18,103 @@ const Screen2 = () => {
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
+
+  const openPopupWindow = (detail) => {
+
+    let repTimes = detail.reps;
+
+    // console.log(repTimes);
+
+    let sets = [];
+    let cprRates = [];
+
+    for (let i = 0; i < repTimes.length - 2; i++) {
+      let set = repTimes.slice(i, i + 3);
+
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
+      }
+    }
+
+    for (let set of sets) {
+      let totalDuration = set[2] - set[0];
+      let cprRate = 3 / (totalDuration / 60000);
+      cprRates.push(cprRate);
+    }
+
+    // console.log(cprRates);
+
+    const popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
+    const content = `
+    <h2>CPR Details</h2>
+    <div id="chart-container"></div>
+  `;
+    popupWindow.document.write(content);
+
+    // Create the VictoryChart element dynamically
+    const chartContainer = popupWindow.document.getElementById("chart-container");
+    const chart = popupWindow.document.createElement("div");
+    chart.style.width = "100%";
+    chart.style.height = "100%";
+
+    // Calculate the minimum and maximum y-axis values
+    const minY = Math.min(...cprRates);
+    const maxY = Math.max(...cprRates);
+
+    // Render the VictoryChart using React's ReactDOM.render
+    ReactDOM.render(
+      <VictoryChart
+        containerComponent={<VictoryContainer responsive={false} />}
+        height={200}
+        domain={{ y: [minY - 10, maxY + 10] }}
+      >
+        <VictoryAxis
+          dependentAxis
+          label="CPR Rate"
+          style={{ axisLabel: { padding: 35 }, ticks: { stroke: "transparent" } }}
+        />
+        <VictoryAxis
+          tickFormat={() => ""}
+          label="Time (sets)"
+          fixLabelOverlap
+          style={{ ticks: { stroke: "transparent" } }}
+        />
+        <VictoryLine
+          data={cprRates.map((rate, index) => ({ x: index + 1, y: rate }))}
+        />
+        <VictoryLine
+          data={[{ x: 0, y: 100 }, { x: cprRates.length + 1, y: 100 }]}
+          style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
+        />
+        <VictoryLine
+          data={[{ x: 0, y: 120 }, { x: cprRates.length + 1, y: 120 }]}
+          style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
+        />
+        <VictoryArea
+          data={[
+            { x: 0, y: 100 },
+            { x: cprRates.length, y: 100 },
+          ]}
+          y0={() => 120}
+          y1={() => 120}
+          style={{
+            data: { fill: 'lightgreen', opacity: 0.3 },
+          }}
+        />
+
+
+      </VictoryChart>
+
+      ,
+      chart
+    );
+
+    // Append the chart to the chart container in the popup window's document
+    chartContainer.appendChild(chart);
+  };
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,6 +228,7 @@ const Screen2 = () => {
                 <th>CPR Fraction</th>
                 <th>Compression</th>
                 <th>Feedback</th>
+                <th>Log CPR Details</th> {/* New column */}
               </tr>
             </thead>
             <tbody>
@@ -139,6 +238,11 @@ const Screen2 = () => {
                   <td>{detail.cprFraction}</td>
                   <td>{detail.compression}</td>
                   <td>{detail.feedback ? 'Yes' : 'No'}</td>
+                  <td>
+                    <button onClick={() => openPopupWindow(detail)}>
+                      Log CPR Details
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
