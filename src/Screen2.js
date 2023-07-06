@@ -78,43 +78,43 @@ const Screen2 = () => {
 
   userData.cprDetails.forEach((detail, index) => {
     let sets = [];
-  
+
     for (let i = 0; i < detail.reps.length - 2; i++) {
       let set = detail.reps.slice(i, i + 3);
-  
+
       // Check if the set contains exactly 3 repTime values
       let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
       if (repTimeCount === 3) {
         sets.push(set.map(rep => rep.repTime));
       }
     }
-  
+
     let withinRangeCount = 0;
-  
+
     for (let set of sets) {
       let totalDuration = set[set.length - 1] - set[0];
       let cprRate = 3 / (totalDuration / 60000);
-  
+
       if (100 <= cprRate && cprRate <= 120) {
         withinRangeCount++;
       }
     }
-  
+
     let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-  
+
     const dataPoint = { x: index, y: percentageWithinRange };
-  
+
     if (detail.feedback) {
       feedbackTruenewCPRavg.push(dataPoint);
     } else {
       feedbackFalsenewCPRavg.push(dataPoint);
     }
   });
-  
+
 
 
   // console.log(feedbackTrueData);
-  // console.log(feedbackFalseData);
+  // console.log(feedbackFalsenewCPRavg);
 
   return (
     <div>
@@ -288,17 +288,18 @@ const Screen2 = () => {
               );
             } else if (selectedGraph === 'newCPRavg') {
               return (
-                <VictoryChart theme={VictoryTheme.material} >
+                <VictoryChart theme={VictoryTheme.material}>
                   <VictoryAxis tickFormat={() => ''} label="Session" />
                   <VictoryAxis
                     dependentAxis
                     label="new CPR Avg"
                     labelPlacement="vertical"
                     style={{
-                      axisLabel: { padding: 35 }, // Adjust the padding as needed
+                      axisLabel: { padding: 35 },
                       ticks: { stroke: 'transparent' },
                       tickLabels: { fontSize: 12 },
                     }}
+                    domain={[0, feedbackFalsenewCPRavg.length > 0 ? 100 : 1]}
                   />
                   <VictoryScatter
                     data={[...feedbackTruenewCPRavg]}
@@ -313,8 +314,8 @@ const Screen2 = () => {
                     }}
                   />
                   <VictoryLegend
-                    x={50} // Adjust the x position according to your needs
-                    y={0} // Adjust the y position according to your needs
+                    x={50}
+                    y={0}
                     orientation="vertical"
                     gutter={20}
                     style={{ labels: { fontSize: 12 } }}
@@ -324,6 +325,7 @@ const Screen2 = () => {
                     ]}
                   />
                 </VictoryChart>
+
               );
             }
           })()}
