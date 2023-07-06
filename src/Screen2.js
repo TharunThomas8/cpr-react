@@ -6,6 +6,7 @@ import { VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryThe
 import { api_base } from './config';
 import ReactDOM from 'react-dom';
 
+
 // const api_base = "http://127.0.0.1:5000";
 
 const Screen2 = () => {
@@ -14,6 +15,7 @@ const Screen2 = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedGraph, setSelectedGraph] = useState("cprRate");
+  const [value, setValue] = useState(0);
 
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
@@ -114,7 +116,12 @@ const Screen2 = () => {
     chartContainer.appendChild(chart);
   };
 
+  const handleChange = (e) => {
 
+    // console.log(value);
+    setValue(parseInt(e.target.value));
+    
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -193,7 +200,7 @@ const Screen2 = () => {
       let totalDuration = set[set.length - 1] - set[0];
       let cprRate = 3 / (totalDuration / 60000);
 
-      if (100 <= cprRate && cprRate <= 120) {
+      if (100 - value <= cprRate && cprRate <= 120 + value) {
         withinRangeCount++;
       }
     }
@@ -209,7 +216,7 @@ const Screen2 = () => {
     }
   });
 
-
+  // console.log("AGAIN");
 
   // console.log(feedbackTrueData);
   // console.log(feedbackFalsenewCPRavg);
@@ -228,7 +235,7 @@ const Screen2 = () => {
                 <th>CPR Fraction</th>
                 <th>Compression</th>
                 <th>Feedback</th>
-                <th>Log CPR Details</th> {/* New column */}
+                <th>Chart CPR Details</th>
               </tr>
             </thead>
             <tbody>
@@ -240,7 +247,7 @@ const Screen2 = () => {
                   <td>{detail.feedback ? 'Yes' : 'No'}</td>
                   <td>
                     <button onClick={() => openPopupWindow(detail)}>
-                      Log CPR Details
+                      Chart CPR Details
                     </button>
                   </td>
                 </tr>
@@ -392,43 +399,59 @@ const Screen2 = () => {
               );
             } else if (selectedGraph === 'newCPRavg') {
               return (
-                <VictoryChart theme={VictoryTheme.material}>
-                  <VictoryAxis tickFormat={() => ''} label="Session" />
-                  <VictoryAxis
-                    dependentAxis
-                    label="new CPR Avg"
-                    labelPlacement="vertical"
-                    style={{
-                      axisLabel: { padding: 35 },
-                      ticks: { stroke: 'transparent' },
-                      tickLabels: { fontSize: 12 },
-                    }}
-                    domain={[0, feedbackFalsenewCPRavg.length > 0 ? 100 : 1]}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackTruenewCPRavg]}
-                    style={{
-                      data: { fill: 'green' },
-                    }}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackFalsenewCPRavg]}
-                    style={{
-                      data: { fill: 'red' },
-                    }}
-                  />
-                  <VictoryLegend
-                    x={50}
-                    y={0}
-                    orientation="vertical"
-                    gutter={20}
-                    style={{ labels: { fontSize: 12 } }}
-                    data={[
-                      { name: 'Feedback: Yes', symbol: { fill: 'green' } },
-                      { name: 'Feedback: No', symbol: { fill: 'red' } },
-                    ]}
-                  />
-                </VictoryChart>
+                <div>
+                  <VictoryChart theme={VictoryTheme.material}>
+                    <VictoryAxis tickFormat={() => ''} label="Session" />
+                    <VictoryAxis
+                      dependentAxis
+                      label="new CPR Avg"
+                      labelPlacement="vertical"
+                      style={{
+                        axisLabel: { padding: 35 },
+                        ticks: { stroke: 'transparent' },
+                        tickLabels: { fontSize: 12 },
+                      }}
+                      domain={[0, feedbackFalsenewCPRavg.length > 0 ? 100 : 1]}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackTruenewCPRavg]}
+                      style={{
+                        data: { fill: 'green' },
+                      }}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackFalsenewCPRavg]}
+                      style={{
+                        data: { fill: 'red' },
+                      }}
+                    />
+                    <VictoryLegend
+                      x={50}
+                      y={0}
+                      orientation="vertical"
+                      gutter={20}
+                      style={{ labels: { fontSize: 12 } }}
+                      data={[
+                        { name: 'Feedback: Yes', symbol: { fill: 'green' } },
+                        { name: 'Feedback: No', symbol: { fill: 'red' } },
+                      ]}
+                    />
+                  </VictoryChart>
+                  <p>Set the range</p>
+                  <div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={10}
+                      value={value}
+                      onChange={handleChange}
+                      style={{ width: '200px' }}
+                    />
+                  </div>
+                  <p>Min: {100 - value}</p>
+                  <p>Max: {value + 120}</p>
+                </div>
+
 
               );
             }
