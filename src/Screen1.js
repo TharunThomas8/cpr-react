@@ -105,7 +105,7 @@ const Screen1 = () => {
         showCountdown = false;
         // setTot(0);
         clearInterval(countdownInterval);
-        
+
 
         // Create a new speech synthesis utterance
         const utterance = new SpeechSynthesisUtterance("Begin");
@@ -136,16 +136,17 @@ const Screen1 = () => {
         let json_data = {
           userId: userId,
           cprRate: finalCPR,
-          cprFraction: ((((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100).toFixed(3),
+          // cprFraction: ((((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100).toFixed(3),
+          cprFraction: calculateCPRFraction(repsArray),
           compression: num_compressions,
           totalTime: (performance.now() - startTimeRef.current) / 1000,
           breaths: 10,
           feedback: selectedOption === 'With Feedback',
           reps: repsArray
         };
-  
+
         // console.log(json_data);
-  
+
         axios.post(api_base + 'save', json_data)
           .then(() => {
             // Navigate to another URL
@@ -159,7 +160,7 @@ const Screen1 = () => {
       }
     }, duration);
   };
-  
+
 
   let prevMat = null;
 
@@ -257,6 +258,7 @@ const Screen1 = () => {
         // console.log("Breath end at " + frame_no);
         breathTotal += performance.now() - breathStart;
         breathStart = 0;
+        repsArray.push({ breathEndTime: performance.now() - startTimeRef.current });
         setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
 
         last_frame = -1;
@@ -290,6 +292,7 @@ const Screen1 = () => {
 
             // console.log("Breath start at " + frame_no);
             breathStart = performance.now();
+            repsArray.push({ breathStartTime: performance.now() - startTimeRef.current });
             compressions_in_phase = 0;
             setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
 
@@ -405,19 +408,25 @@ const Screen1 = () => {
 
     let number = drawOpticalFlow(flow);
     if (number !== -1) {
-      const endTime = performance.now();
+      // const endTime = performance.now();
 
       // setTot(prevTot => prevTot + 1);
       // ltot = ltot + 1;
-      const cprRate = (num_compressions / (((endTime - startTimeRef.current) - breathTotal) /60000) );
-      
+      // const cprRate = (num_compressions / (((endTime - startTimeRef.current) - breathTotal) / 60000));
+      const cprRate = calculateCPR(repsArray);
       // console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
       // console.log(breathTotal, endTime - startTimeRef.current);
 
-      handlecprRate(cprRate);
+      if (cprRate !== -1) {
+        handlecprRate(cprRate);
 
-      setCPRrate(cprRate.toFixed(3));
-      finalCPR = cprRate.toFixed(3);
+        // console.log(repsArray);
+
+        setCPRrate(cprRate.toFixed(3));
+        finalCPR = cprRate.toFixed(3);
+      }
+
+
     }
 
 
@@ -474,6 +483,75 @@ const Screen1 = () => {
   };
 
   // console.log(breathChain.length/2);
+  const calculateCPR = (repTimes) => {
+    let last3RepTimes = [];
+
+    for (let i = repTimes.length - 1; i >= 0; i--) {
+      let rep = repTimes[i];
+
+      if (rep.hasOwnProperty("repTime")) {
+        last3RepTimes.unshift(rep.repTime);
+
+        if (last3RepTimes.length === 3) {
+          // Calculate the total duration
+          let totalDuration = last3RepTimes[2] - last3RepTimes[0];
+
+          // Calculate the CPR rate
+          let cprRate = 3 / (totalDuration / 60000);
+
+          return cprRate;
+        }
+      } else {
+        break;
+      }
+    }
+
+    return -1;
+  }
+
+  const calculateCPRFraction = (repTimes) => {
+    let breathingTime = 0;
+    let currentTime = performance.now() - startTimeRef.current;
+
+    for (let i = 0; i < repTimes.length; i++) {
+      let rep = repTimes[i];
+
+      if (rep.hasOwnProperty("breathStartTime")) {
+        let breathStartTime = rep.breathStartTime;
+        let breathEndTime;
+
+        // Find the nearest following breathEndTime
+        for (let j = i + 1; j < repTimes.length; j++) {
+          if (repTimes[j].hasOwnProperty("breathEndTime")) {
+            breathEndTime = repTimes[j].breathEndTime;
+            i = j; // Update the outer loop index
+            break;
+          }
+        }
+
+        // If no breathEndTime found, use current time
+        if (!breathEndTime) {
+          breathEndTime = currentTime;
+          // console.log(breathingTime, breathEndTime, breathStartTime);
+          
+        }
+
+        breathingTime += breathEndTime - breathStartTime;
+        // console.log(breathingTime);
+      }
+    }
+
+    // pause code execution for 1 second
+
+
+    let totalTime = currentTime - repTimes[0].repTime;
+    let cprFraction = ((totalTime - breathingTime) / totalTime) * 100;
+
+    // round cprFraction to 3 decimal places using Fixed-point notation
+    cprFraction = cprFraction.toFixed(3);
+    
+    return cprFraction;
+  }
 
 
   if (compressions_in_phase === 30) {

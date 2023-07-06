@@ -24,10 +24,10 @@ const HomePage = () => {
       axios.get(api_base+'get-last/' + userId)
         .then(response => {
           const responseData = response.data;
-          console.log(responseData);
+          // console.log(responseData);
           if (responseData.success) {
             setData(responseData.data); // Access the CPR details array
-            console.log(responseData.data);
+            // console.log(responseData.data);
             handleTandC(responseData.data);
             setIsDataFetched(true);
             setUserExists(true);
