@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 import { VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
 import { api_base } from './config';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 
 // const api_base = "http://127.0.0.1:5000";
@@ -16,111 +17,133 @@ const Screen2 = () => {
   const [error, setError] = useState(null);
   const [selectedGraph, setSelectedGraph] = useState("cprRate");
   const [value, setValue] = useState(0);
+  const [extraSet, setExtraSet] = useState(0);
 
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
 
   const openPopupWindow = (detail) => {
-
     let repTimes = detail.reps;
-
-    // console.log(repTimes);
-
+    let addSet = 0;
     let sets = [];
     let cprRates = [];
 
-    for (let i = 0; i < repTimes.length - 2; i++) {
-      let set = repTimes.slice(i, i + 3);
+    function setChange(e) {
+      addSet = parseInt(e.target.value);
+      calculateSetsAndCprRates();
+      updatePopupWindowContent();
+      console.log(addSet);
+    }
 
-      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      if (repTimeCount === 3) {
-        sets.push(set.map(rep => rep.repTime));
+    function calculateSetsAndCprRates() {
+      sets = [];
+      cprRates = [];
+
+      for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
+        let set = repTimes.slice(i, i + 3 + addSet);
+
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3 + addSet) {
+          sets.push(set.map(rep => rep.repTime));
+        }
+      }
+
+      for (let set of sets) {
+        let totalDuration = set[2 + addSet] - set[0];
+        let cprRate = (3 + addSet) / (totalDuration / 60000);
+        cprRates.push(cprRate);
       }
     }
 
-    for (let set of sets) {
-      let totalDuration = set[2] - set[0];
-      let cprRate = 3 / (totalDuration / 60000);
-      cprRates.push(cprRate);
+    function updatePopupWindowContent() {
+      const popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
+      const content = `
+        <h2>CPR Details</h2>
+        <div id="chart-container"></div>
+        
+      `;
+      popupWindow.document.write(content);
+
+      // Create the VictoryChart element dynamically
+      const chartContainer = popupWindow.document.getElementById("chart-container");
+
+      // Calculate the minimum and maximum y-axis values
+      const minY = Math.min(...cprRates);
+      const maxY = Math.max(...cprRates);
+
+      createRoot(chartContainer).render(
+        <div>
+          <VictoryChart
+            containerComponent={<VictoryContainer responsive={false} />}
+            height={200}
+            domain={{ y: [minY - 10, maxY + 10] }}
+          >
+            <VictoryAxis
+              dependentAxis
+              label="CPR Rate"
+              style={{ axisLabel: { padding: 35 }, ticks: { stroke: "transparent" } }}
+            />
+            <VictoryAxis
+              tickFormat={() => ""}
+              label="Time (sets)"
+              fixLabelOverlap
+              style={{ ticks: { stroke: "transparent" } }}
+            />
+            <VictoryLine
+              data={cprRates.map((rate, index) => ({ x: index + 1, y: rate }))}
+              interpolation="natural"
+            />
+            <VictoryLine
+              data={[{ x: 0, y: 100 }, { x: cprRates.length + 1, y: 100 }]}
+              style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
+            />
+            <VictoryLine
+              data={[{ x: 0, y: 120 }, { x: cprRates.length + 1, y: 120 }]}
+              style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
+            />
+            <VictoryArea
+              data={[
+                { x: 0, y: 100 },
+                { x: cprRates.length, y: 100 },
+              ]}
+              y0={() => 120}
+              y1={() => 120}
+              style={{
+                data: { fill: 'lightgreen', opacity: 0.3 },
+              }}
+            />
+          </VictoryChart>
+          <p>Extra Set Range</p>
+          <div>
+            <input
+              type="range"
+              min={0}
+              max={7}
+              value={addSet}
+              onChange={setChange}
+              style={{ width: '200px' }}
+            />
+          </div>
+          <p>Consecutive Set: {3 + addSet}</p>
+        </div>
+      );
     }
 
-    // console.log(cprRates);
-
-    const popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
-    const content = `
-    <h2>CPR Details</h2>
-    <div id="chart-container"></div>
-  `;
-    popupWindow.document.write(content);
-
-    // Create the VictoryChart element dynamically
-    const chartContainer = popupWindow.document.getElementById("chart-container");
-    const chart = popupWindow.document.createElement("div");
-    chart.style.width = "100%";
-    chart.style.height = "100%";
-
-    // Calculate the minimum and maximum y-axis values
-    const minY = Math.min(...cprRates);
-    const maxY = Math.max(...cprRates);
-
-    // Render the VictoryChart using React's ReactDOM.render
-    ReactDOM.render(
-      <VictoryChart
-        containerComponent={<VictoryContainer responsive={false} />}
-        height={200}
-        domain={{ y: [minY - 10, maxY + 10] }}
-      >
-        <VictoryAxis
-          dependentAxis
-          label="CPR Rate"
-          style={{ axisLabel: { padding: 35 }, ticks: { stroke: "transparent" } }}
-        />
-        <VictoryAxis
-          tickFormat={() => ""}
-          label="Time (sets)"
-          fixLabelOverlap
-          style={{ ticks: { stroke: "transparent" } }}
-        />
-        <VictoryLine
-          data={cprRates.map((rate, index) => ({ x: index + 1, y: rate }))}
-        />
-        <VictoryLine
-          data={[{ x: 0, y: 100 }, { x: cprRates.length + 1, y: 100 }]}
-          style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
-        />
-        <VictoryLine
-          data={[{ x: 0, y: 120 }, { x: cprRates.length + 1, y: 120 }]}
-          style={{ data: { stroke: "black", strokeWidth: 1, strokeDasharray: "4" } }}
-        />
-        <VictoryArea
-          data={[
-            { x: 0, y: 100 },
-            { x: cprRates.length, y: 100 },
-          ]}
-          y0={() => 120}
-          y1={() => 120}
-          style={{
-            data: { fill: 'lightgreen', opacity: 0.3 },
-          }}
-        />
-
-
-      </VictoryChart>
-
-      ,
-      chart
-    );
-
-    // Append the chart to the chart container in the popup window's document
-    chartContainer.appendChild(chart);
+    calculateSetsAndCprRates();
+    updatePopupWindowContent();
   };
+
 
   const handleChange = (e) => {
 
     // console.log(value);
     setValue(parseInt(e.target.value));
-    
+
+  };
+
+  const handleExtraChange = (e) => {
+    setExtraSet(parseInt(e.target.value));
   };
 
   useEffect(() => {
@@ -184,12 +207,12 @@ const Screen2 = () => {
   userData.cprDetails.forEach((detail, index) => {
     let sets = [];
 
-    for (let i = 0; i < detail.reps.length - 2; i++) {
-      let set = detail.reps.slice(i, i + 3);
+    for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
+      let set = detail.reps.slice(i, i + 3 + extraSet);
 
       // Check if the set contains exactly 3 repTime values
       let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      if (repTimeCount === 3) {
+      if (repTimeCount === 3 + extraSet) {
         sets.push(set.map(rep => rep.repTime));
       }
     }
@@ -198,7 +221,7 @@ const Screen2 = () => {
 
     for (let set of sets) {
       let totalDuration = set[set.length - 1] - set[0];
-      let cprRate = 3 / (totalDuration / 60000);
+      let cprRate = (3 + extraSet) / (totalDuration / 60000);
 
       if (100 - value <= cprRate && cprRate <= 120 + value) {
         withinRangeCount++;
@@ -450,6 +473,19 @@ const Screen2 = () => {
                   </div>
                   <p>Min: {100 - value}</p>
                   <p>Max: {value + 120}</p>
+                  <br />
+                  <p>Extra Set Range</p>
+                  <div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={7}
+                      value={extraSet}
+                      onChange={handleExtraChange}
+                      style={{ width: '200px' }}
+                    />
+                  </div>
+                  <p>Consecutive Set: {3 + extraSet}</p>
                 </div>
 
 
