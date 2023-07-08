@@ -50,11 +50,21 @@ const Screen1 = () => {
   const webcamRef = useRef(null);
   const startTimeRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState('With Feedback');
+  const [cOnly, setCOnly] = useState(false);
   // const [finalCPR, setfinalCPR] = useState(0);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
-    // console.log(selectedOption);
+  };
+
+  const handleCOnlyChange = (event) => {
+    if (event.target.value === "true") {
+      setCOnly(true);
+    }
+    else {
+      setCOnly(false);
+    }
+
   };
 
 
@@ -142,6 +152,7 @@ const Screen1 = () => {
           totalTime: (performance.now() - startTimeRef.current) / 1000,
           breaths: 10,
           feedback: selectedOption === 'With Feedback',
+          compOnly: cOnly,
           reps: repsArray
         };
 
@@ -256,10 +267,12 @@ const Screen1 = () => {
         // Breath end
 
         // console.log("Breath end at " + frame_no);
-        breathTotal += performance.now() - breathStart;
-        breathStart = 0;
-        repsArray.push({ breathEndTime: performance.now() - startTimeRef.current });
-        setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
+        if (cOnly === false) {
+          breathTotal += performance.now() - breathStart;
+          breathStart = 0;
+          repsArray.push({ breathEndTime: performance.now() - startTimeRef.current });
+          setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
+        }
 
         last_frame = -1;
         return frame_no * -1;
@@ -291,10 +304,14 @@ const Screen1 = () => {
             // Breath start
 
             // console.log("Breath start at " + frame_no);
-            breathStart = performance.now();
-            repsArray.push({ breathStartTime: performance.now() - startTimeRef.current });
-            compressions_in_phase = 0;
-            setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
+            if (cOnly === false) {
+              breathStart = performance.now();
+              repsArray.push({ breathStartTime: performance.now() - startTimeRef.current });
+              compressions_in_phase = 0;
+              setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
+            }
+            // console.log(cOnly)
+
 
 
             breath_frames = 0;
@@ -580,110 +597,130 @@ const Screen1 = () => {
   }
 
 
-    if (compressions_in_phase === 30) {
-      speakText("Begin breathing", 1);
-      breathText = "Perform breathing";
-      startTimer();
+  if (compressions_in_phase === 30 && cOnly === false) {
+    speakText("Begin breathing", 1);
+    breathText = "Perform breathing";
+    startTimer();
+  }
+  // Create the canvas and context outside the captureFrame function
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // Reuse the same Image object
+  const img = new Image();
+
+  const captureFrame = () => {
+
+    if (showCountdown) return;
+    // Get front facing camera image
+    try {
+      const imageSrc = webcamRef.current.getScreenshot();
+
+      if (!imageSrc) return;
+
+
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const currentMat = cv.matFromImageData(imageData);
+
+        if (prevMat) {
+          processOutputImage(prevMat, currentMat);
+          prevMat.delete();
+        }
+
+        prevMat = currentMat;
+      };
+
+      img.src = imageSrc;
+
     }
-    // Create the canvas and context outside the captureFrame function
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    catch (err) {
+      console.log(err);
+    }
 
-    // Reuse the same Image object
-    const img = new Image();
-
-    const captureFrame = () => {
-
-      if (showCountdown) return;
-      // Get front facing camera image
-      try {
-        const imageSrc = webcamRef.current.getScreenshot();
-
-        if (!imageSrc) return;
-
-
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const currentMat = cv.matFromImageData(imageData);
-
-          if (prevMat) {
-            processOutputImage(prevMat, currentMat);
-            prevMat.delete();
-          }
-
-          prevMat = currentMat;
-        };
-
-        img.src = imageSrc;
-
-      }
-      catch (err) {
-        console.log(err);
-      }
-
-    };
-
-    return (
-      <div className="App">
-        <Link to="/">
-          <button>Home Page</button>
-        </Link>
-        <h2>Real-time Optical Flow</h2>
-        <div className="webcamContainer">
-          <h3>Live Feed</h3>
-          <Webcam
-            ref={webcamRef}
-            className="webcam"
-            mirrored
-            screenshotFormat="image/jpeg"
-            videoConstraints={{ width: 640, height: 480 }}
-          />
-        </div>
-        {!startCountdown && (
-          <>
-            <button onClick={() => setStartCountdown(prevState => !prevState)}>
-              {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
-            </button>
-            <div>
-              <label>
-                <input
-                  type="radio"
-                  value="With Feedback"
-                  checked={selectedOption === 'With Feedback'}
-                  onChange={handleOptionChange}
-                />
-                With Feedback
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="Without Feedback"
-                  checked={selectedOption === 'Without Feedback'}
-                  onChange={handleOptionChange}
-                />
-                Without Feedback
-              </label>
-            </div>
-          </>
-
-        )}
-        {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
-        {!showCountdown && selectedOption === "With Feedback" && (
-          <>
-            <div className="totValue">Count: {num_compressions}</div>
-            <div className="rateValue">
-              Rate: {speedText} ({CPRrate})
-            </div>
-            <h4>Maintain 100-120</h4>
-            <div className="breathSeq">Breath Chain: {breathChain}</div>
-            <div className="breathText">{breathText}</div>
-          </>
-        )}
-      </div>
-    );
   };
 
-  export default Screen1;
+  return (
+    <div className="App">
+      <Link to="/">
+        <button>Home Page</button>
+      </Link>
+      <h2>Real-time Optical Flow</h2>
+      <div className="webcamContainer">
+        <h3>Live Feed</h3>
+        <Webcam
+          ref={webcamRef}
+          className="webcam"
+          mirrored
+          screenshotFormat="image/jpeg"
+          videoConstraints={{ width: 640, height: 480 }}
+        />
+      </div>
+      {!startCountdown && (
+        <>
+          <button onClick={() => setStartCountdown(prevState => !prevState)}>
+            {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
+          </button>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="With Feedback"
+                checked={selectedOption === 'With Feedback'}
+                onChange={handleOptionChange}
+              />
+              With Feedback
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="Without Feedback"
+                checked={selectedOption === 'Without Feedback'}
+                onChange={handleOptionChange}
+              />
+              Without Feedback
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value={true}
+                checked={cOnly === true}
+                onChange={handleCOnlyChange}
+              />
+              Comp only CPR
+            </label>
+            <label>
+              <input
+                type="radio"
+                value={false}
+                checked={cOnly === false}
+                onChange={handleCOnlyChange}
+              />
+              CPR with Breaths
+            </label>
+          </div>
+        </>
+
+      )}
+      {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
+      {!showCountdown && selectedOption === "With Feedback" && (
+        <>
+          <div className="totValue">Count: {num_compressions}</div>
+          <div className="rateValue">
+            Rate: {speedText} ({CPRrate})
+          </div>
+          <h4>Maintain 100-120</h4>
+          <div className="breathSeq">Breath Chain: {breathChain}</div>
+          <div className="breathText">{breathText}</div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Screen1;
