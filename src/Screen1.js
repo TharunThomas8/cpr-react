@@ -711,9 +711,9 @@ const Screen1 = () => {
       {!showCountdown && selectedOption === "With Feedback" && (
         <>
           {/* <div className="totValue">Count: {num_compressions}</div> */}
-          {/* <div className="rateValue">
+          <div className="rateValue">
             Rate: {speedText} ({CPRrate})
-          </div> */}
+          </div>
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
           <div className="breathText">{breathText}</div>
