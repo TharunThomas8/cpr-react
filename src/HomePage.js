@@ -7,6 +7,8 @@ import { api_base } from './config';
 
 const HomePage = () => {
   const [data, setData] = useState([]);
+  const [topScore, setTopScore] = useState(0);
+  const [recentScore, setRecentScore] = useState(0);
   const [userId, setUserId] = useState(sessionStorage.getItem('userId') || "");
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userExists, setUserExists] = useState(true);
@@ -21,7 +23,7 @@ const HomePage = () => {
     if (userId) {
       // Make Axios GET request with the user ID
 
-      axios.get(api_base+'get-last/' + userId)
+      axios.get(api_base + 'get-last/' + userId)
         .then(response => {
           const responseData = response.data;
           // console.log(responseData);
@@ -41,6 +43,35 @@ const HomePage = () => {
           console.log(error);
           setUserExists(false);
         });
+
+      axios.get(api_base + 'get-recent-score/' + userId)
+        .then(response => {
+          const responseData = response.data;
+          // console.log(responseData);
+          if (responseData.success) {
+            // console.log(responseData.data);
+            setRecentScore(responseData.recentScore);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        }
+        );
+
+      axios.get(api_base + 'get-top-score/' + userId)
+        .then(response => {
+          const responseData = response.data;
+          // console.log(responseData);
+          if (responseData.success) {
+            // console.log(responseData.data);
+            setTopScore(responseData.topScore);
+          }
+        }
+        )
+        .catch(error => {
+          console.log(error);
+        }
+        );
     }
   };
 
@@ -123,6 +154,23 @@ const HomePage = () => {
               </tbody>
             </table>)}
 
+          {topScore.length === 0 ? (
+            <p>No top scores available.</p>
+          ) : (
+            <div>
+              <p>Top Score: {(topScore/1000).toFixed(3)} s</p>
+            </div>
+          )}
+
+          {recentScore.length === 0 ? (
+            <p>No recent score available.</p>
+          ) : (
+            <div>
+              <p>Recent Score: {(recentScore.gameScore/1000).toFixed(3)} s</p>
+            </div>
+          )}
+
+
         </>
       )}
       {isDataFetched && (
@@ -133,6 +181,13 @@ const HomePage = () => {
 
           <Link to={`/report/${userId}`} >
             <button disabled={(data.length === 0)}>Report</button>
+          </Link>
+
+          <Link to={`/game/${userId}`} >
+            <button disabled={!acceptedTerms}>Game</button>
+          </Link>
+          <Link to={`/leaderboard`} >
+            <button>Leaderboard</button>
           </Link>
         </>
       )
