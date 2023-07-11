@@ -6,6 +6,7 @@ import { VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryThe
 import { api_base } from './config';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
+import './Screen2.css';
 
 
 // const api_base = "http://127.0.0.1:5000";
@@ -18,12 +19,15 @@ const Screen2 = () => {
   const [selectedGraph, setSelectedGraph] = useState("cprRate");
   const [value, setValue] = useState(0);
   const [extraSet, setExtraSet] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
 
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
 
   const openPopupWindow = (detail) => {
+
     let repTimes = detail.reps;
     let addSet = 0;
     let sets = [];
@@ -33,7 +37,7 @@ const Screen2 = () => {
       addSet = parseInt(e.target.value);
       calculateSetsAndCprRates();
       updatePopupWindowContent();
-      console.log(addSet);
+      // console.log(addSet);
     }
 
     function calculateSetsAndCprRates() {
@@ -58,12 +62,25 @@ const Screen2 = () => {
 
     function updatePopupWindowContent() {
       const popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
-      const content = `
-        <h2>CPR Details</h2>
-        <div id="chart-container"></div>
-        
-      `;
-      popupWindow.document.write(content);
+      if (popupWindow && !popupWindow.closed) {
+        // If a popup window is already open, update the content
+        const content = `
+          <h2>CPR Details</h2>
+          <div id="chart-container"></div>
+          <!-- Rest of the content -->
+        `;
+
+        popupWindow.document.body.innerHTML = content;
+      } else {
+        // If no popup window is open, open a new one and set the content
+        popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
+        const content = `
+          <h2>CPR Details</h2>
+          <div id="chart-container"></div>
+          <!-- Rest of the content -->
+        `;
+        popupWindow.document.write(content);
+      }
 
       // Create the VictoryChart element dynamically
       const chartContainer = popupWindow.document.getElementById("chart-container");
@@ -144,6 +161,10 @@ const Screen2 = () => {
 
   const handleExtraChange = (e) => {
     setExtraSet(parseInt(e.target.value));
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   useEffect(() => {
@@ -244,6 +265,12 @@ const Screen2 = () => {
   // console.log(feedbackTrueData);
   // console.log(feedbackFalsenewCPRavg);
 
+  // Pagination logic
+  const PAGE_SIZE = 20;
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const paginatedData = userData.cprDetails.slice().reverse().slice(startIndex, endIndex);
+
   return (
     <div>
       <h2>User Data</h2>
@@ -262,7 +289,7 @@ const Screen2 = () => {
               </tr>
             </thead>
             <tbody>
-              {userData.cprDetails.map((detail, index) => (
+              {paginatedData.map((detail, index) => (
                 <tr key={index}>
                   <td>{detail.cprRate}</td>
                   <td>{detail.cprFraction}</td>
@@ -277,6 +304,18 @@ const Screen2 = () => {
               ))}
             </tbody>
           </table>
+          {/* Pagination */}
+          <div className="pagination">
+            {Array.from({ length: Math.ceil(userData.cprDetails.length / PAGE_SIZE) }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => handlePageChange(index + 1)}
+                className={currentPage === index + 1 ? 'active' : ''}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
           {/* Make a dropdown to select between the 2 graphs */}
           <select value={selectedGraph} onChange={handleGraphChange}>
             <option value="cprRate">Final CPR Rate</option>
@@ -286,143 +325,147 @@ const Screen2 = () => {
           {(() => {
             if (selectedGraph === 'cprRate') {
               return (
-                <VictoryChart theme={VictoryTheme.material} >
-                  <VictoryAxis tickFormat={() => ''} label="Session" />
-                  <VictoryAxis
-                    dependentAxis
-                    label="CPR Rate"
-                    labelPlacement="vertical"
-                    style={{
-                      axisLabel: { padding: 35 }, // Adjust the padding as needed
-                      ticks: { stroke: 'transparent' },
-                      tickLabels: { fontSize: 12 },
-                    }}
-                  />
-                  <VictoryLine
-                    data={[
-                      { x: 0, y: 120 },
-                      { x: userData.cprDetails.length - 1, y: 120 },
-                    ]}
-                    style={{
-                      data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
-                    }}
-                  />
-                  <VictoryLine
-                    data={[
-                      { x: 0, y: 100 },
-                      { x: userData.cprDetails.length - 1, y: 100 },
-                    ]}
-                    style={{
-                      data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
-                    }}
-                  />
-                  <VictoryArea
-                    data={[
-                      { x: 0, y: 100 },
-                      { x: userData.cprDetails.length - 1, y: 100 },
-                    ]}
-                    y0={() => 120}
-                    y1={() => 120}
-                    style={{
-                      data: { fill: 'lightgreen', opacity: 0.3 },
-                    }}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackTrueData]}
-                    style={{
-                      data: { fill: 'green' },
-                    }}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackFalseData]}
-                    style={{
-                      data: { fill: 'red' },
-                    }}
-                  />
-                  <VictoryLegend
-                    x={50} // Adjust the x position according to your needs
-                    y={0} // Adjust the y position according to your needs
-                    orientation="vertical"
-                    gutter={20}
-                    style={{ labels: { fontSize: 12 } }}
-                    data={[
-                      { name: 'Feedback: Yes', symbol: { fill: 'green' } },
-                      { name: 'Feedback: No', symbol: { fill: 'red' } },
-                    ]}
-                  />
-                </VictoryChart>
+                <div className='chart-container'>
+                  <VictoryChart theme={VictoryTheme.material} >
+                    <VictoryAxis tickFormat={() => ''} label="Session" />
+                    <VictoryAxis
+                      dependentAxis
+                      label="CPR Rate"
+                      labelPlacement="vertical"
+                      style={{
+                        axisLabel: { padding: 35 }, // Adjust the padding as needed
+                        ticks: { stroke: 'transparent' },
+                        tickLabels: { fontSize: 12 },
+                      }}
+                    />
+                    <VictoryLine
+                      data={[
+                        { x: 0, y: 120 },
+                        { x: userData.cprDetails.length - 1, y: 120 },
+                      ]}
+                      style={{
+                        data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
+                      }}
+                    />
+                    <VictoryLine
+                      data={[
+                        { x: 0, y: 100 },
+                        { x: userData.cprDetails.length - 1, y: 100 },
+                      ]}
+                      style={{
+                        data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
+                      }}
+                    />
+                    <VictoryArea
+                      data={[
+                        { x: 0, y: 100 },
+                        { x: userData.cprDetails.length - 1, y: 100 },
+                      ]}
+                      y0={() => 120}
+                      y1={() => 120}
+                      style={{
+                        data: { fill: 'lightgreen', opacity: 0.3 },
+                      }}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackTrueData]}
+                      style={{
+                        data: { fill: 'green' },
+                      }}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackFalseData]}
+                      style={{
+                        data: { fill: 'red' },
+                      }}
+                    />
+                    <VictoryLegend
+                      x={50} // Adjust the x position according to your needs
+                      y={0} // Adjust the y position according to your needs
+                      orientation="vertical"
+                      gutter={20}
+                      style={{ labels: { fontSize: 12 } }}
+                      data={[
+                        { name: 'Feedback: Yes', symbol: { fill: 'green' } },
+                        { name: 'Feedback: No', symbol: { fill: 'red' } },
+                      ]}
+                    />
+                  </VictoryChart>
+                </div>
               );
             } else if (selectedGraph === 'cprFraction') {
               return (
-                <VictoryChart theme={VictoryTheme.material} >
-                  <VictoryAxis tickFormat={() => ''} label="Session" />
-                  <VictoryAxis
-                    dependentAxis
-                    label="CPR Fraction"
-                    labelPlacement="vertical"
-                    style={{
-                      axisLabel: { padding: 35 }, // Adjust the padding as needed
-                      ticks: { stroke: 'transparent' },
-                      tickLabels: { fontSize: 12 },
-                    }}
-                  />
-                  <VictoryLine
-                    data={[
-                      { x: 0, y: 80 },
-                      { x: userData.cprDetails.length - 1, y: 80 },
-                    ]}
-                    style={{
-                      data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
-                    }}
-                  />
-                  <VictoryLine
-                    data={[
-                      { x: 0, y: 60 },
-                      { x: userData.cprDetails.length - 1, y: 60 },
-                    ]}
-                    style={{
-                      data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
-                    }}
-                  />
-                  <VictoryArea
-                    data={[
-                      { x: 0, y: 60 },
-                      { x: userData.cprDetails.length - 1, y: 60 },
-                    ]}
-                    y0={() => 80}
-                    y1={() => 80}
-                    style={{
-                      data: { fill: 'lightgreen', opacity: 0.3 },
-                    }}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackTrueDataFrac]}
-                    style={{
-                      data: { fill: 'green' },
-                    }}
-                  />
-                  <VictoryScatter
-                    data={[...feedbackFalseDataFrac]}
-                    style={{
-                      data: { fill: 'red' },
-                    }}
-                  />
-                  <VictoryLegend
-                    x={50} // Adjust the x position according to your needs
-                    y={0} // Adjust the y position according to your needs
-                    orientation="vertical"
-                    gutter={20}
-                    style={{ labels: { fontSize: 12 } }}
-                    data={[
-                      { name: 'Feedback: Yes', symbol: { fill: 'green' } },
-                      { name: 'Feedback: No', symbol: { fill: 'red' } },
-                    ]}
-                  />
-                </VictoryChart>
+                <div className='chart-container'>
+                  <VictoryChart theme={VictoryTheme.material} >
+                    <VictoryAxis tickFormat={() => ''} label="Session" />
+                    <VictoryAxis
+                      dependentAxis
+                      label="CPR Fraction"
+                      labelPlacement="vertical"
+                      style={{
+                        axisLabel: { padding: 35 }, // Adjust the padding as needed
+                        ticks: { stroke: 'transparent' },
+                        tickLabels: { fontSize: 12 },
+                      }}
+                    />
+                    <VictoryLine
+                      data={[
+                        { x: 0, y: 80 },
+                        { x: userData.cprDetails.length - 1, y: 80 },
+                      ]}
+                      style={{
+                        data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
+                      }}
+                    />
+                    <VictoryLine
+                      data={[
+                        { x: 0, y: 60 },
+                        { x: userData.cprDetails.length - 1, y: 60 },
+                      ]}
+                      style={{
+                        data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
+                      }}
+                    />
+                    <VictoryArea
+                      data={[
+                        { x: 0, y: 60 },
+                        { x: userData.cprDetails.length - 1, y: 60 },
+                      ]}
+                      y0={() => 80}
+                      y1={() => 80}
+                      style={{
+                        data: { fill: 'lightgreen', opacity: 0.3 },
+                      }}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackTrueDataFrac]}
+                      style={{
+                        data: { fill: 'green' },
+                      }}
+                    />
+                    <VictoryScatter
+                      data={[...feedbackFalseDataFrac]}
+                      style={{
+                        data: { fill: 'red' },
+                      }}
+                    />
+                    <VictoryLegend
+                      x={50} // Adjust the x position according to your needs
+                      y={0} // Adjust the y position according to your needs
+                      orientation="vertical"
+                      gutter={20}
+                      style={{ labels: { fontSize: 12 } }}
+                      data={[
+                        { name: 'Feedback: Yes', symbol: { fill: 'green' } },
+                        { name: 'Feedback: No', symbol: { fill: 'red' } },
+                      ]}
+                    />
+                  </VictoryChart>
+                </div>
               );
             } else if (selectedGraph === 'newCPRavg') {
               return (
-                <div>
+                <div className='chart-container'>
                   <VictoryChart theme={VictoryTheme.material}>
                     <VictoryAxis tickFormat={() => ''} label="Session" />
                     <VictoryAxis

@@ -118,8 +118,8 @@ const GameScreen = () => {
         speechSynthesis.speak(utterance);
 
         startTimeRef.current = performance.now();
-        console.log("Start time: ", startTimeRef.current);
-        console.log(userId);
+        // console.log("Start time: ", startTimeRef.current);
+        // console.log(userId);
 
         // sendDataAndNavigate();
       }, 5000);
