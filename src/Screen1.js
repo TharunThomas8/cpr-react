@@ -720,7 +720,7 @@ const Screen1 = () => {
         <>
           {/* <div className="totValue">Count: {num_compressions}</div> */}
           <div className="rateValue">
-            Rate: {speedText} ({CPRrate})
+            {/* Rate: {speedText} ({CPRrate}) */}
           </div>
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
@@ -728,6 +728,7 @@ const Screen1 = () => {
           <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
           <div>Down:{down}</div>
+          <div>Rate:{CPRrate}</div>
         </>
       )}
     </div>
