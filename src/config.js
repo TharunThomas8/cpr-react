@@ -5,6 +5,6 @@ const duration = 60000
 
 // const api_base = "http://localhost:5000/";
 // const page_base = "http://localhost:3000/";
-// const duration = 20000
+// const duration = 40000
 
 export { api_base, page_base, duration };

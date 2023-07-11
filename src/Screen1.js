@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base, duration } from "./config";
 // import { set } from "mongoose";
+// import { set } from "mongoose";
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
@@ -43,6 +44,7 @@ const Screen1 = () => {
 
   const { userId } = useParams();
   const [CPRrate, setCPRrate] = useState(0);
+  const [regions, setRegions] = useState(0);
 
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
@@ -246,8 +248,11 @@ const Screen1 = () => {
           weights[row * flow.cols + column] = new_weight;
         }
 
-        const color = new_weight > 1 ? 255 : new_weight * 255;
       }
+    }
+
+    if (moving_regions > 10) {
+      setRegions(moving_regions);
     }
 
     if (
@@ -352,6 +357,7 @@ const Screen1 = () => {
         // console.log("Total Up: " + totalUp);
         // console.log("Total Down: " + totalDown);
         // console.log("Moving Regions: " + moving_regions);
+        // setRegions(moving_regions);
         return frame_no;
       }
     }
@@ -717,6 +723,7 @@ const Screen1 = () => {
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
           <div className="breathText">{breathText}</div>
+          <div>Moving Regions:{regions}</div>
         </>
       )}
     </div>
