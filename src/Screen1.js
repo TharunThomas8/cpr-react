@@ -336,13 +336,13 @@ const Screen1 = () => {
     } else {
       curr_movement = 0; // stationary scene
     }
-    if (prev_movement !== 1 && curr_movement === 1 && time_since_compression >= 7) {
+    if (prev_movement !== 1 && curr_movement === 1 && time_since_compression >= 5) {
       // previous movement not upward, current movement upward
       if (breathing_movement === 1 && comps_while_breathing < 2) {
         // self-correcting compressions while breathing
         comps_while_breathing++;
         return -1;
-      } else if (down_since_last_up && time_since_downward <= 10) {
+      } else if (down_since_last_up && time_since_downward <= 15) {
         // there has been downward movement since last upward movement, there has been recent downward movement
         num_compressions++;
         compressions_in_phase++;
@@ -728,7 +728,7 @@ const Screen1 = () => {
           <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
           <div>Down:{down}</div>
-          <div>Rate:{CPRrate}</div>
+          <div>Count:{num_compressions}</div>
         </>
       )}
     </div>
