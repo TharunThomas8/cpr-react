@@ -6,9 +6,6 @@ import "./styles.css";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base, duration } from "./config";
-import { set } from "mongoose";
-// import { set } from "mongoose";
-// import { set } from "mongoose";
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
