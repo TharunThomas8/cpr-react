@@ -251,10 +251,10 @@ const Screen1 = () => {
       }
     }
 
-    if (moving_regions > 10) {
+    if (moving_regions > 16) {
       setRegions(moving_regions);
-      setUp(totalUp);
-      setDown(totalDown);
+      setUp(totalUp.toFixed(2));
+      setDown(totalDown.toFixed(2));
     }
 
     if (
