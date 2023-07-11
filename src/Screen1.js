@@ -106,7 +106,7 @@ const Screen1 = () => {
 
     if (startCountdown) {
 
-      const interval = setInterval(captureFrame, 33);
+      const interval = setInterval(captureFrame, 20);
 
       // Countdown logic
       const countdownInterval = setInterval(() => {
@@ -253,8 +253,12 @@ const Screen1 = () => {
 
     if (moving_regions > 16) {
       setRegions(moving_regions);
-      setUp(totalUp.toFixed(2));
-      setDown(totalDown.toFixed(2));
+      if (totalUp > totalDown) {
+        setUp(totalUp.toFixed(2));
+      }
+      else {
+        setDown(totalDown.toFixed(2));
+      }
     }
 
     if (
