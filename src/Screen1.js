@@ -6,6 +6,7 @@ import "./styles.css";
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base, duration } from "./config";
+import { set } from "mongoose";
 // import { set } from "mongoose";
 // import { set } from "mongoose";
 
@@ -45,6 +46,8 @@ const Screen1 = () => {
   const { userId } = useParams();
   const [CPRrate, setCPRrate] = useState(0);
   const [regions, setRegions] = useState(0);
+  const [up, setUp] = useState(0);
+  const [down, setDown] = useState(0);
 
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
@@ -253,6 +256,8 @@ const Screen1 = () => {
 
     if (moving_regions > 10) {
       setRegions(moving_regions);
+      setUp(totalUp);
+      setDown(totalDown);
     }
 
     if (
@@ -724,6 +729,8 @@ const Screen1 = () => {
           <div className="breathSeq">Breath Chain: {breathChain}</div>
           <div className="breathText">{breathText}</div>
           <div>Moving Regions:{regions}</div>
+          <div>Up:{up}</div>
+          <div>Down:{down}</div>
         </>
       )}
     </div>
