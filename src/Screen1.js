@@ -263,8 +263,8 @@ const Screen1 = () => {
 
     if (
       moving_regions > 16 &&
-      ((totalUp > totalDown && totalUp > 20) ||
-        (totalUp > 10 && totalUp > totalDown))
+      ((totalUp > totalDown * 2 && totalUp > 20) ||
+        (totalUp > 10 && totalUp > totalDown * 5))
     ) {
       curr_movement = 1; // upward movement
       time_since_downward++;
@@ -294,8 +294,8 @@ const Screen1 = () => {
       }
     } else if (
       moving_regions > 16 &&
-      (totalDown > totalUp && totalDown > 20) ||
-      (totalDown > 10 && totalDown > totalUp)
+      (totalDown > totalUp * 2 && totalDown > 20) ||
+      (totalDown > 10 && totalDown > totalUp * 5)
     ) {
       curr_movement = -1;
       down_since_last_up = true;
@@ -415,8 +415,8 @@ const Screen1 = () => {
     const sm1 = new cv.Mat();
     const sm2 = new cv.Mat();
 
-    cv.resize(prevImage, sm2, new cv.Size(216, 216));
-    cv.resize(currentImage, sm1, new cv.Size(216, 216));
+    cv.resize(prevImage, sm2, new cv.Size(192, 192));
+    cv.resize(currentImage, sm1, new cv.Size(192, 192));
 
     cv.cvtColor(sm2, prevGray, cv.COLOR_RGBA2GRAY);
     cv.cvtColor(sm1, currentGray, cv.COLOR_RGBA2GRAY);
