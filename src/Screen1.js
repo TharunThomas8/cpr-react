@@ -251,15 +251,15 @@ const Screen1 = () => {
       }
     }
 
-    if (moving_regions > 16) {
-      setRegions(moving_regions);
-      if (totalUp > totalDown) {
-        setUp(totalUp.toFixed(2));
-      }
-      else {
-        setDown(totalDown.toFixed(2));
-      }
-    }
+    // if (moving_regions > 16) {
+    //   setRegions(moving_regions);
+    //   if (totalUp > totalDown) {
+    //     setUp(totalUp.toFixed(2));
+    //   }
+    //   else {
+    //     setDown(totalDown.toFixed(2));
+    //   }
+    // }
 
     if (
       moving_regions > 16 &&
@@ -724,15 +724,15 @@ const Screen1 = () => {
         <>
           {/* <div className="totValue">Count: {num_compressions}</div> */}
           <div className="rateValue">
-            {/* Rate: {speedText} ({CPRrate}) */}
+            Rate: {speedText} ({CPRrate})
           </div>
           <h4>Maintain 100-120</h4>
           <div className="breathSeq">Breath Chain: {breathChain}</div>
           <div className="breathText">{breathText}</div>
-          <div>Moving Regions:{regions}</div>
+          {/* <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
           <div>Down:{down}</div>
-          <div>Count:{num_compressions}</div>
+          <div>Count:{num_compressions}</div> */}
         </>
       )}
     </div>
