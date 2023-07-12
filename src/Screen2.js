@@ -291,7 +291,7 @@ const Screen2 = () => {
             <tbody>
               {paginatedData.map((detail, index) => (
                 <tr key={index}>
-                  <td>{detail.cprRate}</td>
+                  <td>{detail.cprRate.toFixed(3)}</td>
                   <td>{detail.cprFraction}</td>
                   <td>{detail.compression}</td>
                   <td>{detail.feedback ? 'Yes' : 'No'}</td>

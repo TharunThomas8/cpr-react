@@ -263,8 +263,8 @@ const Screen1 = () => {
 
     if (
       moving_regions > 16 &&
-      ((totalUp > totalDown && totalUp > 20) ||
-        (totalUp > 10 && totalUp > totalDown ))
+      ((totalUp > totalDown * 2 && totalUp > 20) ||
+        (totalUp > 10 && totalUp > totalDown * 5 ))
     ) {
       curr_movement = 1; // upward movement
       time_since_downward++;
@@ -294,8 +294,8 @@ const Screen1 = () => {
       }
     } else if (
       moving_regions > 16 &&
-      (totalDown > totalUp && totalDown > 20) ||
-      (totalDown > 10 && totalDown > totalUp)
+      (totalDown > totalUp * 2 && totalDown > 20) ||
+      (totalDown > 10 && totalDown > totalUp * 5)
     ) {
       curr_movement = -1;
       down_since_last_up = true;

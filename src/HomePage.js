@@ -145,7 +145,7 @@ const HomePage = () => {
               <tbody>
                 {data.map(item => (
                   <tr key={item._id}>
-                    <td>{item.cprRate}</td>
+                    <td>{item.cprRate.toFixed(3)}</td>
                     <td>{item.cprFraction}</td>
                     <td>{item.compression}</td>
                     <td>{item.feedback ? 'Yes' : 'No'}</td>
