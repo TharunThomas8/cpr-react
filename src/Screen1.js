@@ -424,10 +424,10 @@ const Screen1 = () => {
       prevGray,     // Previous grayscale image (Mat)
       currentGray,     // Current grayscale image (Mat)
       flow,      // Optical flow result (Mat)
-      0.4,       // Pyramid scale factor (0.5 is a common value)
+      0.9,       // Pyramid scale factor (0.5 is a common value)
       1,         // Number of pyramid layers
-      12,        // Window size
-      2,         // Number of iterations at each pyramid level
+      6,        // Window size
+      1,         // Number of iterations at each pyramid level
       8,         // Size of the pixel neighborhood used to find polynomial expansion in each pixel
       1.2,       // Standard deviation used to smooth derivatives
       0          // Flags (set to 0)
