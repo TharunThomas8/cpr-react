@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 import { api_base, page_base, duration } from "./config";
 
 const SPACING = 16;
-const LEARNING_RATE = 0.005;
+const LEARNING_RATE = 0.000;
 let weights = new Array(1000 * 1000).fill(0);
 let average_left = 0;
 let average_right = 0;
