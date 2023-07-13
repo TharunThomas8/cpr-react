@@ -20,7 +20,13 @@ const Screen2 = () => {
   const [value, setValue] = useState(0);
   const [extraSet, setExtraSet] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedValue, setSelectedValue] = useState(false);
 
+  const handleRadioChange = (event) => {
+    const value = event.target.value === 'true'; // Convert string value to boolean
+    setSelectedValue(value);
+    console.log(value);
+  };
 
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
@@ -174,7 +180,7 @@ const Screen2 = () => {
         const response = await axios.get(api_base + 'get-user-data/' + userId);
         const responseData = response.data;
         if (responseData.success) {
-          // console.log(responseData.data[0].reps);
+          // console.log(responseData.data.cprDetails[105].compOnly);
           setUserData(responseData.data);
         } else {
           setError(responseData.message);
@@ -205,62 +211,68 @@ const Screen2 = () => {
   const feedbackFalsenewCPRavg = [];
 
   userData.cprDetails.forEach((detail, index) => {
-    const dataPoint = { x: index, y: detail.cprRate };
+    if (detail.compOnly === selectedValue) {
+      const dataPoint = { x: index, y: detail.cprRate };
+      // console.log(detail.compOnly)
 
-    if (detail.feedback) {
-      feedbackTrueData.push(dataPoint);
-    } else {
-      feedbackFalseData.push(dataPoint);
+      if (detail.feedback) {
+        feedbackTrueData.push(dataPoint);
+      } else {
+        feedbackFalseData.push(dataPoint);
+      }
     }
   });
 
   userData.cprDetails.forEach((detail, index) => {
-    const dataPoint = { x: index, y: detail.cprFraction };
-    // console.log(dataPoint);
+    if (detail.compOnly === selectedValue) {
+      const dataPoint = { x: index, y: detail.cprFraction };
+      // console.log(dataPoint);
 
-    if (detail.feedback) {
-      feedbackTrueDataFrac.push(dataPoint);
-    } else {
-      feedbackFalseDataFrac.push(dataPoint);
+      if (detail.feedback) {
+        feedbackTrueDataFrac.push(dataPoint);
+      } else {
+        feedbackFalseDataFrac.push(dataPoint);
+      }
     }
   });
 
   userData.cprDetails.forEach((detail, index) => {
-    let sets = [];
+    if (detail.compOnly === selectedValue) {
+      let sets = [];
 
-    for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
-      let set = detail.reps.slice(i, i + 3 + extraSet);
+      for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
+        let set = detail.reps.slice(i, i + 3 + extraSet);
 
-      // Check if the set contains exactly 3 repTime values
-      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      if (repTimeCount === 3 + extraSet) {
-        sets.push(set.map(rep => rep.repTime));
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3 + extraSet) {
+          sets.push(set.map(rep => rep.repTime));
+        }
       }
-    }
 
-    let withinRangeCount = 0;
+      let withinRangeCount = 0;
 
-    for (let set of sets) {
-      let totalDuration = set[set.length - 1] - set[0];
-      let cprRate = (3 + extraSet) / (totalDuration / 60000);
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3 + extraSet) / (totalDuration / 60000);
 
-      if (100 - value <= cprRate && cprRate <= 120 + value) {
-        withinRangeCount++;
+        if (100 - value <= cprRate && cprRate <= 120 + value) {
+          withinRangeCount++;
+        }
       }
-    }
 
-    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
 
-    const dataPoint = { x: index, y: percentageWithinRange };
+      const dataPoint = { x: index, y: percentageWithinRange };
 
-    if (detail.feedback) {
-      feedbackTruenewCPRavg.push(dataPoint);
-    } else {
-      feedbackFalsenewCPRavg.push(dataPoint);
+      if (detail.feedback) {
+        feedbackTruenewCPRavg.push(dataPoint);
+      } else {
+        feedbackFalsenewCPRavg.push(dataPoint);
+      }
     }
   });
 
-  // console.log("AGAIN");
 
   // console.log(feedbackTrueData);
   // console.log(feedbackFalsenewCPRavg);
@@ -269,14 +281,44 @@ const Screen2 = () => {
   const PAGE_SIZE = 20;
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
-  const paginatedData = userData.cprDetails.slice().reverse().slice(startIndex, endIndex);
+
+  // const paginatedData = userData.cprDetails.slice().reverse().slice(startIndex, endIndex);
+  const paginatedData = [...userData.cprDetails]
+    .reverse()
+    .filter((detail) => detail.compOnly === selectedValue)
+    .slice(startIndex, endIndex);
+
+  const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
 
   return (
     <div>
+      <Link to={`/`}>
+        <button>Home</button>
+      </Link>
       <h2>User Data</h2>
       {userData ? (
         <div>
           <h4>User ID: {userData.userId}</h4>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value="true"
+                checked={selectedValue === true}
+                onChange={handleRadioChange}
+              />
+              Compression Only
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="false"
+                checked={selectedValue === false}
+                onChange={handleRadioChange}
+              />
+              Compression + Breaths
+            </label>
+          </div>
           <h5>CPR Details:</h5>
           <table>
             <thead>
@@ -536,9 +578,7 @@ const Screen2 = () => {
             }
           })()}
 
-          <Link to={`/`}>
-            <button>Home</button>
-          </Link>
+
         </div>
       ) : (
         <div>User data not found.</div>

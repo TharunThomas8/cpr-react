@@ -378,11 +378,11 @@ const Screen1 = () => {
     // console.log(speedText);
 
     let temp_speedText = "";
-    if (cprRate < 90) {
+    if (cprRate < 50) {
       temp_speedText = "Speed up!";
     } else if (cprRate < 100) {
       temp_speedText = "slightly Speed up";
-    } else if (cprRate > 130) {
+    } else if (cprRate > 170) {
       temp_speedText = "Slow Down!";
     } else if (cprRate > 120) {
       temp_speedText = "slightly Slow down";
