@@ -731,8 +731,8 @@ const Screen1 = () => {
           <div className="breathText">{breathText}</div>
           {/* <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
-          <div>Down:{down}</div>
-          <div>Count:{num_compressions}</div> */}
+          <div>Down:{down}</div> */}
+          <div>Count:{num_compressions}</div> 
         </>
       )}
     </div>
