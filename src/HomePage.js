@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { api_base } from './config';
+import './HomePage.css';
 
 // const api_base = "http://127.0.0.1:5000";
 
@@ -14,6 +15,35 @@ const HomePage = () => {
   const [userExists, setUserExists] = useState(true);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   // console.log(userId);
+
+  const optimalCPR = (detail) => {
+    let sets = [];
+
+    for (let i = 0; i < detail.reps.length - 2; i++) {
+      let set = detail.reps.slice(i, i + 3);
+
+      // Check if the set contains exactly 3 repTime values
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
+      }
+    }
+
+    let withinRangeCount = 0;
+
+    for (let set of sets) {
+      let totalDuration = set[set.length - 1] - set[0];
+      let cprRate = (3) / (totalDuration / 60000);
+
+      if (100 <= cprRate && cprRate <= 120) {
+        withinRangeCount++;
+      }
+    }
+
+    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+    return percentageWithinRange;
+  };
 
   const handleUserIdChange = (event) => {
     setUserId(event.target.value);
@@ -114,51 +144,59 @@ const HomePage = () => {
 
   return (
     <div>
-      <h2>Home Page</h2>
+      {/* <h2>Home Page</h2> */}
       {!isDataFetched ? (
         <>
 
           <Link to="/trainer">
-            <button>Trainer</button>
+            <button className='button'>Trainer</button>
           </Link>
           <br />
-          <input type="text" value={userId} onChange={handleUserIdChange} placeholder="Enter User ID" />
-          <button onClick={fetchData}>Fetch Data</button>
+          <div>
+            <input className="input-container" type="text" value={userId} onChange={handleUserIdChange} placeholder="Enter User ID" />
+            <button onClick={fetchData} className='button'>Fetch Data</button>
+          </div>
           {!userExists && <p>User doesn't exist.</p>}
         </>
       ) : (
         <>
-          <button onClick={changeUser}>Change User</button>
+          <button className='button' onClick={changeUser}>Change User</button>
           <br />
-          <h5>User: {userId}</h5>
+          <p>Welcome {userId}</p>
           {/* Display the fetched data as a table */}
           {data.length === 0 ? (<p>No data available.</p>) :
-            (<table>
-              <thead>
-                <tr>
-                  <th>CPRrate</th>
-                  <th>cprFraction</th>
-                  <th>compression</th>
-                  <th>feedback</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map(item => (
-                  <tr key={item._id}>
-                    <td>{item.cprRate.toFixed(3)}</td>
-                    <td>{item.cprFraction}</td>
-                    <td>{item.compression}</td>
-                    <td>{item.feedback ? 'Yes' : 'No'}</td>
+            (<div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rate</th>
+                    <th>Fraction</th>
+                    <th>Compressions</th>
+                    <th>Feedback</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>)}
+                </thead>
+                <tbody>
+                  {data.map(item => (
+                    <tr key={item._id}>
+                      <td className={item.cprRate >= 100 && item.cprRate <= 120 ? 'green' : 'red'}>{item.cprRate.toFixed(0)}</td>
+                      <td>{item.cprFraction}</td>
+                      <td>
+                        <div className="pie animate" style={{ '--p': optimalCPR(item), '--c': 'lightgreen' }}>
+                          {optimalCPR(item).toFixed(0)}
+                        </div>
+                      </td>
+                      <td>{item.feedback ? 'Yes' : 'No'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>)}
 
           {topScore.length === 0 ? (
             <p>No top scores available.</p>
           ) : (
             <div>
-              <p>Top Score: {(topScore/1000).toFixed(3)} s</p>
+              <p>My Top Score: {(topScore / 1000).toFixed(1)} s</p>
             </div>
           )}
 
@@ -166,7 +204,7 @@ const HomePage = () => {
             <p>No recent score available.</p>
           ) : (
             <div>
-              <p>Recent Score: {(recentScore.gameScore/1000).toFixed(3)} s</p>
+              <p>My Recent Score: {(recentScore.gameScore / 1000).toFixed(1)} s</p>
             </div>
           )}
 
@@ -176,18 +214,18 @@ const HomePage = () => {
       {isDataFetched && (
         <>
           <Link to={`/cpr/${userId}`}>
-            <button disabled={!acceptedTerms}>CPR Training</button>
+            <button className='button' disabled={!acceptedTerms}>CPR Training</button>
           </Link>
 
           <Link to={`/report/${userId}`} >
-            <button disabled={(data.length === 0)}>Report</button>
+            <button className='button' disabled={(data.length === 0)}>Report</button>
           </Link>
 
           <Link to={`/game/${userId}`} >
-            <button disabled={!acceptedTerms}>Game</button>
+            <button className='button' disabled={!acceptedTerms}>Game</button>
           </Link>
           <Link to={`/leaderboard`} >
-            <button>Leaderboard</button>
+            <button className='button' >Leaderboard</button>
           </Link>
         </>
       )

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { api_base } from './config';
+import './Trainer.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 const Trainer = () => {
     const [trainerId, setTrainerId] = useState(sessionStorage.getItem('trainerId') || '');
@@ -85,18 +88,22 @@ const Trainer = () => {
 
     return (
         <div>
-            <h2>Users under Trainer</h2>
+            <Link to="/"><button className='button'><FontAwesomeIcon icon={faHome} /></button></Link>
+            {/* <h2>Users under Trainer</h2> */}
             {showForm ? (
                 <div>
-                    <input type="text" value={trainerId} onChange={handleInputChange} />
-                    <button onClick={fetchUsers}>Fetch Users</button>
+                    <input className='input-container' placeholder='Enter Trainer ID' type="text" value={trainerId} onChange={handleInputChange} />
+                    <button className='button' onClick={fetchUsers}>Fetch Users</button>
                 </div>
             ) : (
                 <div>
-                    <button onClick={changeTrainerId}>Change Trainer ID</button>
-                    <br />
-                    <input type="text" value={newUser} onChange={handleNewUserChange} />
-                    <button onClick={addUser}>Add User</button>
+                    
+                    {/* <br /> */}
+                    
+                    <input className='input-container' placeholder='Enter New User ID' type="text" value={newUser} onChange={handleNewUserChange} />
+                    <button className='button' onClick={addUser}>Add User</button>
+                    <button className='button' onClick={changeTrainerId}>Change Trainer ID</button>
+                    <p>Users under Trainer {trainerId}</p>
                 </div>
             )}
             {isLoading ? (
@@ -112,9 +119,9 @@ const Trainer = () => {
                     ))}
                 </ul>
             ) : (
-                <div>No users assigned.</div>
+                <p>No users assigned.</p>
             )}
-            <Link to="/">Go Back</Link>
+            
         </div>
     );
 };

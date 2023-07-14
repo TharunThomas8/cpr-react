@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { api_base } from './config';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
+import './Screen2.css'
 
 const Leaderboard = () => {
   const [topScores, setTopScores] = useState([]);
@@ -24,7 +25,7 @@ const Leaderboard = () => {
       {topScores.length === 0 ? (
         <p>No top scores available.</p>
       ) : (
-        <>
+        <div className="table-container">
         <table>
           <thead>
             <tr>
@@ -44,9 +45,9 @@ const Leaderboard = () => {
           </tbody>
         </table>
         <Link to={`/`}>
-          <button>Home</button>
+          <button className='button' >Home</button>
         </Link>
-        </>
+        </div>
       )}
     </div>
   );

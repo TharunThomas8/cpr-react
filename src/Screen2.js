@@ -7,6 +7,9 @@ import { api_base } from './config';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import './Screen2.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -342,13 +345,12 @@ const Screen2 = () => {
   return (
     <div className="container">
       <Link to={`/`}>
-        <button className='button'>Home</button>
+        <button className='button'><FontAwesomeIcon icon={faHome} /></button>
       </Link>
-      <h2>User Page</h2>
 
       {userData ? (
         <div>
-          <h4>Welcome! User {userData.userId}</h4>
+          {/* <h4>Welcome! User {userData.userId}</h4> */}
           {/* <div className="radio-container" >
             <label>
               <input
@@ -384,20 +386,35 @@ const Screen2 = () => {
             </div>
           </div>
 
-          <center><h3>CPR Details</h3></center>
+          {/* <center><h3>CPR Details</h3></center> */}
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Rate</th>
-                  <th>Optimal Reps %</th>
-                  <th>Fraction</th>
-                  <th>Compressions</th>
-                  <th>Feedback</th>
-                  <th>Chart Details</th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Date & Time of Session">Date</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Total Average CPR Rate">Rate</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Percentage of Reps from 100 to 120 per min ">Optimal Reps %</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Fraction of time given to chest compressions is to breaths">Fraction</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Total No:of Compressions">Compressions</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Feedback provided by the system">Feedback</span>
+                  </th>
+                  <th>
+                    <span className="tooltip" data-tooltip="Chart Details for individuals reps in the session ">Chart Details</span>
+                  </th>
                 </tr>
               </thead>
+
               <tbody>
                 {paginatedData.map((detail, index) => (
                   <tr key={index}>
@@ -414,7 +431,7 @@ const Screen2 = () => {
                     <td>{detail.feedback ? 'Yes' : 'No'}</td>
                     <td>
                       <button className='button' onClick={() => openPopupWindow(detail)}>
-                        Show
+                        <FontAwesomeIcon icon={faChartLine} />
                       </button>
                     </td>
                   </tr>
@@ -446,7 +463,7 @@ const Screen2 = () => {
             if (selectedGraph === 'cprRate') {
               return (
                 <div className='chart-container'>
-                  <VictoryChart theme={VictoryTheme.material} >
+                  <VictoryChart theme={VictoryTheme.material}>
                     <VictoryAxis tickFormat={() => ''} label="Session" />
                     <VictoryAxis
                       dependentAxis
