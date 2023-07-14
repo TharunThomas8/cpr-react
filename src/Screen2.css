@@ -180,3 +180,36 @@
   body {
     background:#ddd;
   }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pagination button {
+    padding: 8px 16px;
+    margin: 0 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #3273dc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .pagination button.active {
+    background-color: #ff5a5f;
+  }
+  
+  .pagination button:hover {
+    background-color: #2c68c2;
+  }
+  
+  .pagination button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  

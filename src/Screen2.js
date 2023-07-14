@@ -320,7 +320,7 @@ const Screen2 = () => {
   // console.log(feedbackFalsenewCPRavg);
 
   // Pagination logic
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 10;
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
 
@@ -332,7 +332,12 @@ const Screen2 = () => {
 
   // console.log(paginatedData);
 
-  const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
+  // const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
+
+  const getPaginatedLen = () => {
+    // console.log(userData.cprDetails.filter((detail) => detail.compOnly === selectedValue).length);
+    return Math.ceil(userData.cprDetails.filter((detail) => detail.compOnly === selectedValue).length / PAGE_SIZE);
+  };
 
   return (
     <div className="container">
@@ -419,7 +424,7 @@ const Screen2 = () => {
           </div>
           {/* Pagination */}
           <div className="pagination">
-            {Array.from({ length: Math.ceil(userData.cprDetails.length / PAGE_SIZE) }, (_, index) => (
+            {Array.from({ length: getPaginatedLen() }, (_, index) => (
               <button
                 key={index}
                 onClick={() => handlePageChange(index + 1)}
@@ -626,7 +631,7 @@ const Screen2 = () => {
                       max={10}
                       value={value}
                       onChange={handleChange}
-                      style={{ width: '50%' }}
+                      style={{ width: '75%' }}
                     />
                   </div>
                   {/* <p>Min: {100 - value}</p>
@@ -640,7 +645,7 @@ const Screen2 = () => {
                       max={7}
                       value={extraSet}
                       onChange={handleExtraChange}
-                      style={{ width: '50%' }}
+                      style={{ width: '75%' }}
                     />
                   </div>
                 </div>
