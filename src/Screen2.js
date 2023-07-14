@@ -22,11 +22,10 @@ const Screen2 = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedValue, setSelectedValue] = useState(false);
 
-  const handleRadioChange = (event) => {
-    const value = event.target.value === 'true'; // Convert string value to boolean
-    setSelectedValue(value);
-    console.log(value);
+  const handleRadioChange = (value) => {
+    setSelectedValue(value === 'true'); // Convert string value to boolean
   };
+
 
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
@@ -64,6 +63,8 @@ const Screen2 = () => {
         let cprRate = (3 + addSet) / (totalDuration / 60000);
         cprRates.push(cprRate);
       }
+
+      // console.log(cprRates);
     }
 
     function updatePopupWindowContent() {
@@ -173,6 +174,37 @@ const Screen2 = () => {
     setCurrentPage(pageNumber);
   };
 
+  const optimalCPR = (detail) => {
+      let sets = [];
+
+      for (let i = 0; i < detail.reps.length - 2 ; i++) {
+        let set = detail.reps.slice(i, i + 3 );
+
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3 ) {
+          sets.push(set.map(rep => rep.repTime));
+        }
+      }
+
+      let withinRangeCount = 0;
+
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3 ) / (totalDuration / 60000);
+
+        if (100 - value <= cprRate && cprRate <= 120 + value) {
+          withinRangeCount++;
+        }
+      }
+
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+      return percentageWithinRange;
+  };
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -210,9 +242,12 @@ const Screen2 = () => {
   const feedbackTruenewCPRavg = [];
   const feedbackFalsenewCPRavg = [];
 
+  let i = 1;
+
   userData.cprDetails.forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
-      const dataPoint = { x: index, y: detail.cprRate };
+      const dataPoint = { x: i, y: detail.cprRate };
+      i++;
       // console.log(detail.compOnly)
 
       if (detail.feedback) {
@@ -222,11 +257,13 @@ const Screen2 = () => {
       }
     }
   });
+  i = 1;
 
   userData.cprDetails.forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
-      const dataPoint = { x: index, y: detail.cprFraction };
+      const dataPoint = { x: i, y: detail.cprFraction };
       // console.log(dataPoint);
+      i++;
 
       if (detail.feedback) {
         feedbackTrueDataFrac.push(dataPoint);
@@ -235,6 +272,8 @@ const Screen2 = () => {
       }
     }
   });
+
+  i = 1;
 
   userData.cprDetails.forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
@@ -263,7 +302,9 @@ const Screen2 = () => {
 
       let percentageWithinRange = (withinRangeCount / sets.length) * 100;
 
-      const dataPoint = { x: index, y: percentageWithinRange };
+      const dataPoint = { x: i, y: percentageWithinRange };
+
+      i++;
 
       if (detail.feedback) {
         feedbackTruenewCPRavg.push(dataPoint);
@@ -288,18 +329,20 @@ const Screen2 = () => {
     .filter((detail) => detail.compOnly === selectedValue)
     .slice(startIndex, endIndex);
 
+  console.log(paginatedData);
+
   const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
 
   return (
-    <div>
+    <div className="container">
       <Link to={`/`}>
-        <button>Home</button>
+        <button className='button'>Home</button>
       </Link>
-      <h2>User Data</h2>
+      <h2>User Page</h2>
       {userData ? (
         <div>
-          <h4>User ID: {userData.userId}</h4>
-          <div>
+          <h4>Welcome! User {userData.userId}</h4>
+          {/* <div className="radio-container" >
             <label>
               <input
                 type="radio"
@@ -318,34 +361,55 @@ const Screen2 = () => {
               />
               Compression + Breaths
             </label>
+          </div> */}
+          <div className="radio-container">
+            <div
+              className={`radio-button ${selectedValue === true ? 'active' : ''}`}
+              onClick={() => handleRadioChange('true')}
+            >
+              Compression Only
+            </div>
+            <div
+              className={`radio-button ${selectedValue === false ? 'active' : ''}`}
+              onClick={() => handleRadioChange('false')}
+            >
+              Compression + Breaths
+            </div>
           </div>
-          <h5>CPR Details:</h5>
-          <table>
-            <thead>
-              <tr>
-                <th>CPR Rate</th>
-                <th>CPR Fraction</th>
-                <th>Compression</th>
-                <th>Feedback</th>
-                <th>Chart CPR Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((detail, index) => (
-                <tr key={index}>
-                  <td>{detail.cprRate.toFixed(3)}</td>
-                  <td>{detail.cprFraction}</td>
-                  <td>{detail.compression}</td>
-                  <td>{detail.feedback ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button onClick={() => openPopupWindow(detail)}>
-                      Chart CPR Details
-                    </button>
-                  </td>
+
+          <center><h3>CPR Details</h3></center>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Rate</th>
+                  <th>Optimal Reps %</th>
+                  <th>Fraction</th>
+                  <th>Compressions</th>
+                  <th>Feedback</th>
+                  <th>Chart Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedData.map((detail, index) => (
+                  <tr key={index}>
+                    <td>{new Date(detail.createdAt).toLocaleString("en-IE", { timeZone: "Europe/Dublin" })}</td>
+                    <td className={detail.cprRate >= 100 && detail.cprRate <= 120 ? 'green' : 'red'}>{detail.cprRate.toFixed(0)}</td>
+                    <td className={optimalCPR(detail) >= 60 ? 'green' : 'red'}>{optimalCPR(detail).toFixed(0)}</td>
+                    <td>{detail.cprFraction.toFixed(0)}</td>
+                    <td>{detail.compression}</td>
+                    <td>{detail.feedback ? 'Yes' : 'No'}</td>
+                    <td>
+                      <button className='button' onClick={() => openPopupWindow(detail)}>
+                        Show
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {/* Pagination */}
           <div className="pagination">
             {Array.from({ length: Math.ceil(userData.cprDetails.length / PAGE_SIZE) }, (_, index) => (
@@ -359,11 +423,13 @@ const Screen2 = () => {
             ))}
           </div>
           {/* Make a dropdown to select between the 2 graphs */}
-          <select value={selectedGraph} onChange={handleGraphChange}>
-            <option value="cprRate">Final CPR Rate</option>
-            <option value="cprFraction">CPR Fraction</option>
-            <option value="newCPRavg">% of optimal CPR</option>
-          </select>
+          <p>Select the graph
+            <select className="select-dropdown" value={selectedGraph} onChange={handleGraphChange}>
+              <option value="cprRate">Final CPR Rate</option>
+              <option value="cprFraction">CPR Fraction</option>
+              <option value="newCPRavg">% of optimal CPR</option>
+            </select>
+          </p>
           {(() => {
             if (selectedGraph === 'cprRate') {
               return (
@@ -383,7 +449,7 @@ const Screen2 = () => {
                     <VictoryLine
                       data={[
                         { x: 0, y: 120 },
-                        { x: userData.cprDetails.length - 1, y: 120 },
+                        { x: feedbackTrueData.length + feedbackFalseData.length + 1, y: 120 },
                       ]}
                       style={{
                         data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -392,7 +458,7 @@ const Screen2 = () => {
                     <VictoryLine
                       data={[
                         { x: 0, y: 100 },
-                        { x: userData.cprDetails.length - 1, y: 100 },
+                        { x: feedbackTrueData.length + feedbackFalseData.length + 1, y: 100 },
                       ]}
                       style={{
                         data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -401,7 +467,7 @@ const Screen2 = () => {
                     <VictoryArea
                       data={[
                         { x: 0, y: 100 },
-                        { x: userData.cprDetails.length - 1, y: 100 },
+                        { x: feedbackTrueData.length + feedbackFalseData.length + 1, y: 100 },
                       ]}
                       y0={() => 120}
                       y1={() => 120}
@@ -453,7 +519,7 @@ const Screen2 = () => {
                     <VictoryLine
                       data={[
                         { x: 0, y: 80 },
-                        { x: userData.cprDetails.length - 1, y: 80 },
+                        { x: feedbackTrueDataFrac.length + feedbackFalseDataFrac.length + 1, y: 80 },
                       ]}
                       style={{
                         data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -462,7 +528,7 @@ const Screen2 = () => {
                     <VictoryLine
                       data={[
                         { x: 0, y: 60 },
-                        { x: userData.cprDetails.length - 1, y: 60 },
+                        { x: feedbackTrueDataFrac.length + feedbackFalseDataFrac.length + 1, y: 60 },
                       ]}
                       style={{
                         data: { stroke: 'black', strokeWidth: 1, strokeDasharray: '4' },
@@ -471,12 +537,12 @@ const Screen2 = () => {
                     <VictoryArea
                       data={[
                         { x: 0, y: 60 },
-                        { x: userData.cprDetails.length - 1, y: 60 },
+                        { x: feedbackTrueDataFrac.length + feedbackFalseDataFrac.length + 1, y: 60 },
                       ]}
                       y0={() => 80}
                       y1={() => 80}
                       style={{
-                        data: { fill: 'lightgreen', opacity: 0.3 },
+                        data: { fill: 'red', opacity: 0.3 },
                       }}
                     />
                     <VictoryScatter
@@ -545,7 +611,7 @@ const Screen2 = () => {
                       ]}
                     />
                   </VictoryChart>
-                  <p>Set the range</p>
+                  <p>Set CPR range: {100 - value} to {value + 120} </p>
                   <div>
                     <input
                       type="range"
@@ -553,13 +619,13 @@ const Screen2 = () => {
                       max={10}
                       value={value}
                       onChange={handleChange}
-                      style={{ width: '200px' }}
+                      style={{ width: '50%' }}
                     />
                   </div>
-                  <p>Min: {100 - value}</p>
-                  <p>Max: {value + 120}</p>
-                  <br />
-                  <p>Extra Set Range</p>
+                  {/* <p>Min: {100 - value}</p>
+                  <p>Max: {value + 120}</p> */}
+
+                  <p>Consecutive Set: {3 + extraSet}</p>
                   <div>
                     <input
                       type="range"
@@ -567,10 +633,9 @@ const Screen2 = () => {
                       max={7}
                       value={extraSet}
                       onChange={handleExtraChange}
-                      style={{ width: '200px' }}
+                      style={{ width: '50%' }}
                     />
                   </div>
-                  <p>Consecutive Set: {3 + extraSet}</p>
                 </div>
 
 

@@ -2,15 +2,125 @@
     /* Example styles */
     width: 100%;
     padding: 10px;
-}
-
-.table {
-    /* Example styles */
-    font-size: 12px;
-}
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+  }
+  
+  /* Rest of the styles remain the same */
+  
+  .table-container {
+    margin-top: 20px;
+    overflow: auto; /* Add scrollbar if table overflows */
+    max-width: 100%; /* Set maximum width to 100% */
+  }
+  
+  /* Rest of the styles remain the same */
+  
 
 .chart-container {
     /* Example styles */
     width: 100%;
     height: 300px;
+}
+
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+    padding: 8px;
+    
+    border-bottom: 1px solid #ddd;
+
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-container th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.table-container tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table-container tbody tr:hover {
+    background-color: #e6e6e6;
+}
+
+.table-container .green {
+    color: green;
+}
+
+.table-container .red {
+    color: red;
+}
+
+.radio-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.radio-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #eaeaea;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.radio-button.active {
+    background-color: #3273dc;
+    color: #fff;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #eaeaea;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
+  
+  .button:hover {
+    background-color: #ccc;
+  }
+  
+  .button:active {
+    background-color: #aaa;
+    transform: translateY(1px);
+  }
+  
+
+  .select-dropdown {
+    appearance: none;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  
+  .select-dropdown:hover {
+    border-color: #999;
+  }
+  
+  .select-dropdown:focus {
+    outline: none;
+    border-color: #3273dc;
+    box-shadow: 0 0 5px rgba(50, 115, 220, 0.5);
+  }
+  
+  
