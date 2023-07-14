@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client';
 import './Screen2.css';
 
 
+
 // const api_base = "http://127.0.0.1:5000";
 
 const Screen2 = () => {
@@ -175,32 +176,32 @@ const Screen2 = () => {
   };
 
   const optimalCPR = (detail) => {
-      let sets = [];
+    let sets = [];
 
-      for (let i = 0; i < detail.reps.length - 2 ; i++) {
-        let set = detail.reps.slice(i, i + 3 );
+    for (let i = 0; i < detail.reps.length - 2; i++) {
+      let set = detail.reps.slice(i, i + 3);
 
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3 ) {
-          sets.push(set.map(rep => rep.repTime));
-        }
+      // Check if the set contains exactly 3 repTime values
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
       }
+    }
 
-      let withinRangeCount = 0;
+    let withinRangeCount = 0;
 
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3 ) / (totalDuration / 60000);
+    for (let set of sets) {
+      let totalDuration = set[set.length - 1] - set[0];
+      let cprRate = (3) / (totalDuration / 60000);
 
-        if (100 - value <= cprRate && cprRate <= 120 + value) {
-          withinRangeCount++;
-        }
+      if (100 - value <= cprRate && cprRate <= 120 + value) {
+        withinRangeCount++;
       }
+    }
 
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
 
-      return percentageWithinRange;
+    return percentageWithinRange;
   };
 
 
@@ -329,7 +330,7 @@ const Screen2 = () => {
     .filter((detail) => detail.compOnly === selectedValue)
     .slice(startIndex, endIndex);
 
-  console.log(paginatedData);
+  // console.log(paginatedData);
 
   const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
 
@@ -339,6 +340,7 @@ const Screen2 = () => {
         <button className='button'>Home</button>
       </Link>
       <h2>User Page</h2>
+
       {userData ? (
         <div>
           <h4>Welcome! User {userData.userId}</h4>
@@ -396,7 +398,12 @@ const Screen2 = () => {
                   <tr key={index}>
                     <td>{new Date(detail.createdAt).toLocaleString("en-IE", { timeZone: "Europe/Dublin" })}</td>
                     <td className={detail.cprRate >= 100 && detail.cprRate <= 120 ? 'green' : 'red'}>{detail.cprRate.toFixed(0)}</td>
-                    <td className={optimalCPR(detail) >= 60 ? 'green' : 'red'}>{optimalCPR(detail).toFixed(0)}</td>
+                    {/* <td className={optimalCPR(detail) >= 60 ? 'green' : 'red'}>{optimalCPR(detail).toFixed(0)}</td> */}
+                    <td>
+                      <div className="pie animate" style={{ '--p': optimalCPR(detail), '--c': 'lightgreen' }}>
+                        {optimalCPR(detail).toFixed(0)}
+                      </div>
+                    </td>
                     <td>{detail.cprFraction.toFixed(0)}</td>
                     <td>{detail.compression}</td>
                     <td>{detail.feedback ? 'Yes' : 'No'}</td>
