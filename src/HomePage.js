@@ -171,7 +171,9 @@ const HomePage = () => {
                   <tr>
                     <th>Rate</th>
                     <th>Fraction</th>
-                    <th>Compressions</th>
+                    <th>Optimal
+                      
+                    </th>
                     <th>Feedback</th>
                   </tr>
                 </thead>

@@ -193,7 +193,7 @@ const Screen1 = () => {
       breathText = "";
       compressions_in_phase = 0;
       handlecprRate(CPRrate, true);
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 10000); // 12 seconds
 
     // Cancel the timer before it completes
     // clearTimeout(timer);
