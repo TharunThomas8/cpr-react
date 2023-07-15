@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import HomePage from './HomePage';
-import Screen1 from './Screen1';
-import Screen2 from './Screen2';
+import HomePage from './HomePage.js';
+import Screen1 from './Screen1.js';
+import Screen2 from './Screen2.js';
 import Trainer from './Trainer';
 import GameScreen from './GameScreen';
 import Leaderboard from './Leaderboard';

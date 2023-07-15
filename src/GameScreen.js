@@ -2,11 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import { Link } from 'react-router-dom';
 import cv, { Mat } from "@techstark/opencv-js";
-import "./styles.css";
+import "./Screen1.css";
+import "./styles.css"
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base } from "./config";
 // import { set } from "mongoose";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faHandPaper } from "@fortawesome/free-solid-svg-icons";
+
+library.add(faHandPaper);
+
 
 const SPACING = 16;
 const LEARNING_RATE = 0.005;
@@ -57,7 +66,7 @@ const GameScreen = () => {
   // const [finalCPR, setfinalCPR] = useState(0);
 
   const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
+    setSelectedOption(event);
   };
 
 
@@ -646,12 +655,10 @@ const GameScreen = () => {
 
   return (
     <div className="App">
-      <Link to="/">
-        <button>Home Page</button>
+      <Link to={`/`}>
+        <button className='button'><FontAwesomeIcon icon={faHome} /></button>
       </Link>
-      <h2>Real-time Optical Flow</h2>
       <div className="webcamContainer">
-        <h3>Live Feed</h3>
         <Webcam
           ref={webcamRef}
           className="webcam"
@@ -662,28 +669,22 @@ const GameScreen = () => {
       </div>
       {!startCountdown && (
         <>
-          <button onClick={() => setStartCountdown(prevState => !prevState)}>
+          <button className='button' onClick={() => setStartCountdown(prevState => !prevState)}>
             {startCountdown ? 'Stop Countdown' : 'Start Countdown'}
           </button>
-          <div>
-            <label>
-              <input
-                type="radio"
-                value="With Feedback"
-                checked={selectedOption === 'With Feedback'}
-                onChange={handleOptionChange}
-              />
+          <div className="radio-container">
+            <div
+              className={`radio-button ${selectedOption === 'With Feedback' ? 'active' : ''}`}
+              onClick={() => handleOptionChange('With Feedback')}
+            >
               With Feedback
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="Without Feedback"
-                checked={selectedOption === 'Without Feedback'}
-                onChange={handleOptionChange}
-              />
+            </div>
+            <div
+              className={`radio-button ${selectedOption === 'Without Feedback' ? 'active' : ''}`}
+              onClick={() => handleOptionChange('Without Feedback')}
+            >
               Without Feedback
-            </label>
+            </div>
           </div>
         </>
 
@@ -691,16 +692,17 @@ const GameScreen = () => {
       {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
       {!showCountdown && selectedOption === "With Feedback" && (
         <>
-          {/* <div className="totValue">Count: {num_compressions}</div> */}
-          <div className="rateValue">
-            Rate: {speedText} ({CPRrate})
+          <div
+            className={`rateValue ${speedText === 'Maintain Pace' ? 'green-color' : speedText === ('Slow Down!' || 'Speed up!') ? 'red-color' : 'yellow-color'}`}
+          >
+            {speedText} ({CPRrate})
           </div>
-          <h4>Maintain 100-120</h4>
         </>
       )}
       {gameBegan && (
         <>
-          <h2>Hold</h2>
+          <div className="breathText">Hold <FontAwesomeIcon icon={faHandPaper} />
+          </div>
         </>
       )}
     </div>
