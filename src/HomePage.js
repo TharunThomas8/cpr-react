@@ -149,12 +149,12 @@ const HomePage = () => {
         <>
 
           <Link to="/trainer">
-            <button className='button'>Trainer</button>
+            <button className='button'>Trainer Log In</button>
           </Link>
           <br />
           <div>
             <input className="input-container" type="text" value={userId} onChange={handleUserIdChange} placeholder="Enter User ID" />
-            <button onClick={fetchData} className='button'>Fetch Data</button>
+            <button onClick={fetchData} className='button'>Login</button>
           </div>
           {!userExists && <p>User doesn't exist.</p>}
         </>
