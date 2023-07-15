@@ -10,10 +10,25 @@ import './Screen2.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+// import React from "react";
+import { useHistory } from "react-router-dom";
 
 
 
 // const api_base = "http://127.0.0.1:5000";
+const GoBackButton = () => {
+  const history = useHistory();
+
+  const goBack = () => {
+    history.goBack();
+  };
+
+  return (
+    <button className='button' onClick={goBack}>
+      <FontAwesomeIcon icon={faHome} />
+    </button>
+  );
+};
 
 const Screen2 = () => {
   const { userId } = useParams();
@@ -344,9 +359,10 @@ const Screen2 = () => {
 
   return (
     <div className="container">
-      <Link to={`/`}>
+      {/* <Link to={`/`}>
         <button className='button'><FontAwesomeIcon icon={faHome} /></button>
-      </Link>
+      </Link> */}
+      <GoBackButton />
 
       {userData ? (
         <div>
