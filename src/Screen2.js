@@ -222,6 +222,64 @@ const Screen2 = () => {
     return percentageWithinRange;
   };
 
+  const calculateFrac = (detail) => {
+
+    let repTimes = detail.reps;
+    let breathingTime = 0;
+    // let currentTime = performance.now() - startTimeRef.current;
+    if (repTimes[repTimes.length - 1].hasOwnProperty("breathStartTime")) {
+      repTimes.push({ breathEndTime: repTimes[repTimes.length - 1].breathStartTime + 5000 });
+    }
+    for (let i = 0; i < repTimes.length; i++) {
+      let rep = repTimes[i];
+
+      if (rep.hasOwnProperty("breathStartTime")) {
+        let breathStartTime = rep.breathStartTime;
+        let breathEndTime;
+
+        // Find the nearest following breathEndTime
+        for (let j = i + 1; j < repTimes.length; j++) {
+          if (repTimes[j].hasOwnProperty("breathEndTime")) {
+            breathEndTime = repTimes[j].breathEndTime;
+            i = j; // Update the outer loop index
+            break;
+          }
+        }
+
+        // If no breathEndTime found, use current time
+        // if (!breathEndTime) {
+        //   // breathEndTime = breathStartTime + 5000;
+        //   // console.log(breathingTime, breathEndTime, breathStartTime);
+        //   breathingTime = 5000;
+
+        // }
+        // else {
+
+        breathingTime += breathEndTime - breathStartTime;
+        // console.log(breathingTime);
+        // }
+      }
+    }
+
+    // pause code execution for 1 second
+
+
+    // console.log(repTimes[repTimes.length - 1].repTime - repTimes[0].repTime);
+    const lastObject = repTimes[repTimes.length - 1]; // Get the last object
+    const lastValue = Object.values(lastObject)[0]; // Get the value of the last property
+
+    let totalTime = lastValue - repTimes[0].repTime;
+    // console.log(totalTime);
+    let cprFraction = ((totalTime - breathingTime) / totalTime) * 100;
+
+    // round cprFraction to 3 decimal places using Fixed-point notation
+    cprFraction = cprFraction.toFixed(0);
+
+    // console.log(cprFraction);
+
+    return cprFraction;
+  }
+
 
 
   useEffect(() => {
@@ -442,7 +500,7 @@ const Screen2 = () => {
                         {optimalCPR(detail).toFixed(0)}
                       </div>
                     </td>
-                    <td>{detail.cprFraction.toFixed(0)}</td>
+                    <td>{(detail.cprFraction > 98) ? calculateFrac(detail) : detail.cprFraction.toFixed(0)}</td>
                     <td>{detail.compression}</td>
                     <td>{detail.feedback ? 'Yes' : 'No'}</td>
                     <td>

@@ -159,7 +159,7 @@ const Screen1 = () => {
           cprFraction: calculateCPRFraction(repsArray),
           compression: num_compressions,
           totalTime: (performance.now() - startTimeRef.current) / 1000,
-          breaths: 10,
+          breaths: breathChain.length / 2,
           feedback: selectedOption === 'With Feedback',
           compOnly: cOnly,
           reps: repsArray
