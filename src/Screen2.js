@@ -83,7 +83,7 @@ const Screen2 = () => {
         cprRates.push(cprRate);
       }
 
-      console.log(addSet);
+      // console.log(addSet);
     }
 
     function updatePopupWindowContent() {
@@ -157,7 +157,7 @@ const Screen2 = () => {
               }}
             />
           </VictoryChart>
-          <p>Extra Set Range</p>
+          {/* <p>Extra Set Range</p>
           <div>
             <input
               type="range"
@@ -168,7 +168,7 @@ const Screen2 = () => {
               style={{ width: '200px' }}
             />
           </div>
-          <p>Consecutive Set: {3 + addSet}</p>
+          <p>Consecutive Set: {3 + addSet}</p> */}
         </div>
       );
     }
@@ -466,7 +466,7 @@ const Screen2 = () => {
               <thead>
                 <tr>
                   <th>
-                    <span className="tooltip" data-tooltip="Date & Time of Session">Date</span>
+                    <span className="tooltip" data-tooltip="Date of Session">Date</span>
                   </th>
                   <th>
                     <span className="tooltip" data-tooltip="Total Average CPR Rate">Rate</span>
@@ -477,9 +477,9 @@ const Screen2 = () => {
                   <th>
                     <span className="tooltip" data-tooltip="Fraction of time given to chest compressions is to breaths">Fraction</span>
                   </th>
-                  <th>
+                  {/* <th>
                     <span className="tooltip" data-tooltip="Total No:of Compressions">Compressions</span>
-                  </th>
+                  </th> */}
                   <th>
                     <span className="tooltip" data-tooltip="Feedback provided by the system">Feedback</span>
                   </th>
@@ -492,7 +492,7 @@ const Screen2 = () => {
               <tbody>
                 {paginatedData.map((detail, index) => (
                   <tr key={index}>
-                    <td>{new Date(detail.createdAt).toLocaleString("en-IE", { timeZone: "Europe/Dublin" })}</td>
+                    <td>{new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" })}</td>
                     <td className={detail.cprRate >= 100 && detail.cprRate <= 120 ? 'green' : 'red'}>{detail.cprRate.toFixed(0)}</td>
                     {/* <td className={optimalCPR(detail) >= 60 ? 'green' : 'red'}>{optimalCPR(detail).toFixed(0)}</td> */}
                     <td>
@@ -501,7 +501,7 @@ const Screen2 = () => {
                       </div>
                     </td>
                     <td>{(detail.cprFraction > 98) ? calculateFrac(detail) : detail.cprFraction.toFixed(0)}</td>
-                    <td>{detail.compression}</td>
+                    {/* <td>{detail.compression}</td> */}
                     <td>{detail.feedback ? 'Yes' : 'No'}</td>
                     <td>
                       <button className='button' onClick={() => openPopupWindow(detail)}>
@@ -728,7 +728,7 @@ const Screen2 = () => {
                   {/* <p>Min: {100 - value}</p>
                   <p>Max: {value + 120}</p> */}
 
-                  <p>Consecutive Set: {3 + extraSet}</p>
+                  {/* <p>Consecutive Set: {3 + extraSet}</p>
                   <div>
                     <input
                       type="range"
@@ -738,7 +738,7 @@ const Screen2 = () => {
                       onChange={handleExtraChange}
                       style={{ width: '75%' }}
                     />
-                  </div>
+                  </div> */}
                 </div>
 
 

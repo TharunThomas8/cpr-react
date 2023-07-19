@@ -3,6 +3,28 @@ import axios from 'axios';
 import { api_base } from './config';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 import './Screen2.css'
+import { useHistory } from "react-router-dom";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
+
+
+const GoBackButton = () => {
+  const history = useHistory();
+
+  const goBack = () => {
+    history.goBack();
+  };
+
+  return (
+    <button className='button' onClick={goBack}>
+      <FontAwesomeIcon icon={faArrowLeft} />
+    </button>
+  );
+};
 
 const Leaderboard = () => {
   const [topScores, setTopScores] = useState([]);
@@ -21,7 +43,8 @@ const Leaderboard = () => {
 
   return (
     <div>
-      <h1>Leaderboard</h1>
+      <GoBackButton />
+      <center><h1>Leaderboard</h1></center>
       {topScores.length === 0 ? (
         <p>No top scores available.</p>
       ) : (
@@ -44,9 +67,9 @@ const Leaderboard = () => {
             ))}
           </tbody>
         </table>
-        <Link to={`/`}>
+        {/* <Link to={`/`}>
           <button className='button' >Home</button>
-        </Link>
+        </Link> */}
         </div>
       )}
     </div>

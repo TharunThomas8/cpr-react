@@ -265,3 +265,31 @@ body {
   /* Use a font that supports the home icon */
   /* Additional styles for the icon */
 }
+
+.game-scores {
+  background-color: #f2f2f2;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 15px;
+  width: fit-content;
+  margin: auto;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #555;
+  font-size: 16px;
+}
+
+.no-score {
+  color: #3a1d1d;
+  font-style: italic;
+  margin-top: 10px;
+}

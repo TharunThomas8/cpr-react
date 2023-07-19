@@ -26,7 +26,7 @@ const Trainer = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axios.get(api_base+'get-users/'+trainerId);
+            const response = await axios.get(api_base + 'get-users/' + trainerId);
             const responseData = response.data;
             if (responseData.success) {
                 setUsers(responseData.users);
@@ -46,7 +46,7 @@ const Trainer = () => {
 
     const addUser = async () => {
         try {
-            const response = await axios.post(api_base+'add-user', {
+            const response = await axios.post(api_base + 'add-user', {
                 trainerId,
                 userId: newUser
             });
@@ -97,9 +97,9 @@ const Trainer = () => {
                 </div>
             ) : (
                 <div>
-                    
+
                     {/* <br /> */}
-                    
+
                     <input className='input-container' placeholder='Enter New User ID' type="text" value={newUser} onChange={handleNewUserChange} />
                     <button className='button' onClick={addUser}>Add User</button>
                     <button className='button' onClick={changeTrainerId}>Change Trainer ID</button>
@@ -111,17 +111,22 @@ const Trainer = () => {
             ) : error ? (
                 <div>Error: {error}</div>
             ) : users.length > 0 ? (
-                <ul>
-                    {users.map((user, index) => (
-                        <li key={index}>
-                            <Link to={`/report/${user}`}>{user}</Link>
-                        </li>
-                    ))}
-                </ul>
+                <>
+                    <ul>
+                        {users.map((user, index) => (
+                            <li key={index}>
+                                <Link to={`/report/${user}`}>{user}</Link>
+                            </li>
+                        ))}
+                    </ul>
+                    <Link to={`/leaderboard`} >
+                        <button className='button' >Leaderboard</button>
+                    </Link>
+                </>
             ) : (
                 <p>No users assigned.</p>
             )}
-            
+
         </div>
     );
 };

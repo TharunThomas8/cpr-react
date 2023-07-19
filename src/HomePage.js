@@ -53,55 +53,71 @@ const HomePage = () => {
     if (userId) {
       // Make Axios GET request with the user ID
 
-      axios.get(api_base + 'get-last/' + userId)
-        .then(response => {
-          const responseData = response.data;
-          // console.log(responseData);
-          if (responseData.success) {
-            setData(responseData.data); // Access the CPR details array
-            // console.log(responseData.data);
-            handleTandC(responseData.data);
-            setIsDataFetched(true);
-            setUserExists(true);
-          } else {
-            // console.log("Failed");
+      try {
+        axios.get(api_base + 'get-last/' + userId)
+          .then(response => {
+            const responseData = response.data;
+            // console.log(responseData);
+            if (responseData.success) {
+              setData(responseData.data); // Access the CPR details array
+              // console.log(responseData.data);
+              handleTandC(responseData.data);
+              setIsDataFetched(true);
+              setUserExists(true);
+            } else {
+              // console.log("Failed");
+              setUserExists(false);
+            }
+          })
+          .catch(error => {
+            // console.log("Failed With Error");
+            console.log(error);
             setUserExists(false);
-          }
-        })
-        .catch(error => {
-          // console.log("Failed With Error");
-          console.log(error);
-          setUserExists(false);
-        });
+          });
+      } catch (error) {
+        console.log(error);
+      }
 
-      axios.get(api_base + 'get-recent-score/' + userId)
-        .then(response => {
-          const responseData = response.data;
-          // console.log(responseData);
-          if (responseData.success) {
-            // console.log(responseData.data);
-            setRecentScore(responseData.recentScore);
+      try {
+        axios.get(api_base + 'get-recent-score/' + userId)
+          .then(response => {
+            const responseData = response.data;
+            // console.log(responseData);
+            if (responseData.success) {
+              // console.log(responseData.recentScore);
+              setRecentScore(responseData.recentScore.gameScore);
+            }
+          })
+          .catch(error => {
+            console.log(error);
+            setRecentScore(0);
           }
-        })
-        .catch(error => {
-          console.log(error);
-        }
-        );
+          );
+      } catch (error) {
+        console.log(error);
+        setRecentScore(0);
+      }
 
-      axios.get(api_base + 'get-top-score/' + userId)
-        .then(response => {
-          const responseData = response.data;
-          // console.log(responseData);
-          if (responseData.success) {
-            // console.log(responseData.data);
-            setTopScore(responseData.topScore);
+      try {
+        axios.get(api_base + 'get-top-score/' + userId)
+          .then(response => {
+            const responseData = response.data;
+            // console.log(responseData);
+            if (responseData.success) {
+              // console.log(responseData.data);
+              setTopScore(responseData.topScore);
+            }
           }
-        }
-        )
-        .catch(error => {
-          console.log(error);
-        }
-        );
+          )
+          .catch(error => {
+            console.log(error);
+            setTopScore(0);
+          }
+          );
+      } catch (error) {
+        console.log(error);
+      }
+
     }
   };
 
@@ -192,21 +208,25 @@ const HomePage = () => {
               </table>
             </div>)}
 
-          {topScore.length === 0 ? (
-            <p>No top scores available.</p>
-          ) : (
-            <div>
-              <p>My Top Score: {(topScore / 1000).toFixed(1)} s</p>
-            </div>
-          )}
+          <div className='game-scores'>
+            <h2>Game Scores</h2>
 
-          {recentScore.length === 0 ? (
-            <p>No recent score available.</p>
-          ) : (
-            <div>
-              <p>My Recent Score: {(recentScore.gameScore / 1000).toFixed(1)} s</p>
-            </div>
-          )}
+            {topScore === 0.0 ? (
+              <p>No top scores available.</p>
+            ) : (
+              <div>
+                <p>My Top Score: {(topScore / 1000).toFixed(1)} s</p>
+              </div>
+            )}
+
+            {recentScore === 0.0 ? (
+              <p>No recent score available.</p>
+            ) : (
+              <div>
+                <p>My Recent Score: {(recentScore / 1000).toFixed(1)} s</p>
+              </div>
+            )}
+          </div>
 
 
         </>
