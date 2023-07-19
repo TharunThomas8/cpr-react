@@ -533,7 +533,7 @@ const Screen1 = () => {
           let totalDuration = last3RepTimes[2] - last3RepTimes[0];
 
           // Calculate the CPR rate
-          let cprRate = 3 / (totalDuration / 60000);
+          let cprRate = 3 / ((totalDuration + 500 ) / 60000);
 
           return cprRate;
         }
@@ -729,7 +729,10 @@ const Screen1 = () => {
           <div>Down:{down}</div> */}
           {/* <div>Count:{num_compressions}</div> */}
           <div
-            className={`rateValue ${speedText === 'Maintain Pace' ? 'green-color' : speedText === ('Slow Down!' || 'Speed up!') ? 'red-color' : 'yellow-color'}`}
+            className={`rateValue ${
+              speedText === 'Maintain Pace' ? 'green-color' : 
+              speedText === 'Slow Down!' ? 'red-color' : 
+              speedText === 'Speed up!' ? 'red-color' : 'yellow-color' }`}
           >
             {speedText} ({CPRrate})
           </div>

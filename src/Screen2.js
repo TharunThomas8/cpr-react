@@ -83,7 +83,7 @@ const Screen2 = () => {
         cprRates.push(cprRate);
       }
 
-      // console.log(cprRates);
+      console.log(addSet);
     }
 
     function updatePopupWindowContent() {
