@@ -1,0 +1,21 @@
+/* LandingPage.css */
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #ddd; /* Set your desired background color */
+  }
+  
+  .landing-heading {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #333; /* Set your desired heading color */
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 20px;
+  }
+  

@@ -6,6 +6,7 @@ import Screen2 from './Screen2.js';
 import Trainer from './Trainer';
 import GameScreen from './GameScreen';
 import Leaderboard from './Leaderboard';
+import LandingPage from './LandingPage';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path= "/trainer" component={Trainer} />
         <Route path="/game/:userId" component={GameScreen} />
         <Route path="/leaderboard" component={Leaderboard} />
+        <Route path="/landing" component={LandingPage} />
       </Switch>
     </Router>
   );

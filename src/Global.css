@@ -11,4 +11,22 @@ p {
     background-color: transparent;
     font-family: Arial, Helvetica, sans-serif;
 }
-  
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #eaeaea;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #ccc;
+}
+
+.button:active {
+    background-color: #aaa;
+    transform: translateY(1px);
+}

@@ -12,6 +12,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 // import React from "react";
 import { useHistory } from "react-router-dom";
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -25,7 +26,7 @@ const GoBackButton = () => {
 
   return (
     <button className='button' onClick={goBack}>
-      <FontAwesomeIcon icon={faHome} />
+      <FontAwesomeIcon icon={faArrowLeft} />
     </button>
   );
 };
@@ -65,25 +66,59 @@ const Screen2 = () => {
     }
 
     function calculateSetsAndCprRates() {
-      sets = [];
-      cprRates = [];
+      // console.log(detail)
 
-      for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
-        let set = repTimes.slice(i, i + 3 + addSet);
+      const createdAtDate = (new Date(detail.createdAt));
+      const referenceDate = new Date('2023-07-24');
 
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3 + addSet) {
-          sets.push(set.map(rep => rep.repTime));
+      // console.log(createdAtDate)
+      // console.log(referenceDate);
+      if (createdAtDate.getTime() > referenceDate.getTime()) {
+        // 'createdAtDate' is after July 24, 2023
+
+        sets = [];
+        cprRates = [];
+
+        for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
+          let set = repTimes.slice(i, i + 3 + addSet);
+
+          let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+          if (repTimeCount === 3 + addSet) {
+            sets.push(set.map(rep => rep.repTime));
+          }
         }
-      }
 
-      for (let set of sets) {
-        let totalDuration = set[2 + addSet] - set[0];
-        let cprRate = (3 + addSet) / (totalDuration / 60000);
-        cprRates.push(cprRate);
-      }
+        for (let set of sets) {
+          let totalDuration = set[2 + addSet] - set[0];
+          let cprRate = (3 + addSet) / ((totalDuration+500) / 60000);
+          cprRates.push(cprRate);
+        }
 
-      // console.log(addSet);
+        // console.log(addSet);
+      }
+      else {
+        // 'createdAtDate' is after July 24, 2023
+
+        sets = [];
+        cprRates = [];
+
+        for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
+          let set = repTimes.slice(i, i + 3 + addSet);
+
+          let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+          if (repTimeCount === 3 + addSet) {
+            sets.push(set.map(rep => rep.repTime));
+          }
+        }
+
+        for (let set of sets) {
+          let totalDuration = set[2 + addSet] - set[0];
+          let cprRate = (3 + addSet) / (totalDuration / 60000);
+          cprRates.push(cprRate);
+        }
+
+        // console.log(addSet);
+      }
     }
 
     function updatePopupWindowContent() {
@@ -198,30 +233,69 @@ const Screen2 = () => {
   const optimalCPR = (detail) => {
     let sets = [];
 
-    for (let i = 0; i < detail.reps.length - 2; i++) {
-      let set = detail.reps.slice(i, i + 3);
+    // console.log(detail,createdAt);
+    const createdAtDate = (new Date(detail.createdAt));
+    const referenceDate = new Date('2023-07-24');
 
-      // Check if the set contains exactly 3 repTime values
-      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      if (repTimeCount === 3) {
-        sets.push(set.map(rep => rep.repTime));
+    // console.log(createdAtDate)
+    // console.log(referenceDate);
+    if (createdAtDate.getTime() > referenceDate.getTime()) {
+      // 'createdAtDate' is after July 24, 2023
+      // console.log("Date comes after July 24, 2023");
+      for (let i = 0; i < detail.reps.length - 2; i++) {
+        let set = detail.reps.slice(i, i + 3);
+
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3) {
+          sets.push(set.map(rep => rep.repTime));
+        }
       }
+
+      let withinRangeCount = 0;
+
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3) / ((totalDuration + 500) / 60000);
+
+        if (100 - value <= cprRate && cprRate <= 120 + value) {
+          withinRangeCount++;
+        }
+      }
+
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+      return percentageWithinRange;
+    } else {
+      // 'createdAtDate' is on or before July 24, 2023
+      // console.log("Date comes on or before July 24, 2023");
+      for (let i = 0; i < detail.reps.length - 2; i++) {
+        let set = detail.reps.slice(i, i + 3);
+
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3) {
+          sets.push(set.map(rep => rep.repTime));
+        }
+      }
+
+      let withinRangeCount = 0;
+
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3) / (totalDuration / 60000);
+
+        if (100 - value <= cprRate && cprRate <= 120 + value) {
+          withinRangeCount++;
+        }
+      }
+
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+      return percentageWithinRange;
     }
 
-    let withinRangeCount = 0;
 
-    for (let set of sets) {
-      let totalDuration = set[set.length - 1] - set[0];
-      let cprRate = (3) / (totalDuration / 60000);
-
-      if (100 - value <= cprRate && cprRate <= 120 + value) {
-        withinRangeCount++;
-      }
-    }
-
-    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-
-    return percentageWithinRange;
   };
 
   const calculateFrac = (detail) => {
@@ -695,14 +769,14 @@ const Screen2 = () => {
                       // tickFormat={(index) => dateLabels[index]}
                       tickFormat={() => ''}
                       label="Session"
-                      // tickLabelComponent={
-                      //   <VictoryLabel
-                      //     angle={-90}
-                      //     dx={-15} // Adjust this value to control the vertical spacing of the labels
-                      //     // textAnchor="end" // Anchor the text at the end to make it vertically displayed
-                      //     // margin = {2}
-                      //   />
-                      // }
+                    // tickLabelComponent={
+                    //   <VictoryLabel
+                    //     angle={-90}
+                    //     dx={-15} // Adjust this value to control the vertical spacing of the labels
+                    //     // textAnchor="end" // Anchor the text at the end to make it vertically displayed
+                    //     // margin = {2}
+                    //   />
+                    // }
                     />
                     <VictoryAxis
                       dependentAxis

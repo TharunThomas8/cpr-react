@@ -4,7 +4,7 @@ import axios from 'axios';
 import { api_base } from './config';
 import './Trainer.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const Trainer = () => {
     const [trainerId, setTrainerId] = useState(sessionStorage.getItem('trainerId') || '');
@@ -13,6 +13,8 @@ const Trainer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(true);
+    const [isAddingUser, setIsAddingUser] = useState(false);
+
 
     const handleInputChange = (event) => {
         setTrainerId(event.target.value);
@@ -45,6 +47,7 @@ const Trainer = () => {
     };
 
     const addUser = async () => {
+        setIsAddingUser(true);
         try {
             const response = await axios.post(api_base + 'add-user', {
                 trainerId,
@@ -61,7 +64,9 @@ const Trainer = () => {
                     setError(responseData.message);
                 }
             }
+            setIsAddingUser(false);
         } catch (error) {
+            setIsAddingUser(false);
             setError('An error occurred while adding the user.');
         }
     };
@@ -100,9 +105,10 @@ const Trainer = () => {
 
                     {/* <br /> */}
 
+                    <button className='button' onClick={changeTrainerId}>Change Trainer ID</button>
+                    <br />
                     <input className='input-container' placeholder='Enter New User ID' type="text" value={newUser} onChange={handleNewUserChange} />
                     <button className='button' onClick={addUser}>Add User</button>
-                    <button className='button' onClick={changeTrainerId}>Change Trainer ID</button>
                     <p>Users under Trainer {trainerId}</p>
                 </div>
             )}
@@ -118,10 +124,20 @@ const Trainer = () => {
                                 <Link to={`/report/${user}`}>{user}</Link>
                             </li>
                         ))}
+                        {isAddingUser && (
+                            <div>
+                                <center>
+                                <FontAwesomeIcon icon={faSpinner} spin />
+                                {' Adding user...'}
+                                </center>
+                            </div>
+                        )}
                     </ul>
+
                     <Link to={`/leaderboard`} >
                         <button className='button' >Leaderboard</button>
                     </Link>
+
                 </>
             ) : (
                 <p>No users assigned.</p>

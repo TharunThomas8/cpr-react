@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { api_base } from './config';
 import './HomePage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 // const api_base = "http://127.0.0.1:5000";
 
@@ -17,32 +19,68 @@ const HomePage = () => {
   // console.log(userId);
 
   const optimalCPR = (detail) => {
-    let sets = [];
 
-    for (let i = 0; i < detail.reps.length - 2; i++) {
-      let set = detail.reps.slice(i, i + 3);
+    const referenceDate = new Date("2023-07-24");
+    const createdAtDate = new Date(detail.createdAt);
 
-      // Check if the set contains exactly 3 repTime values
-      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      if (repTimeCount === 3) {
-        sets.push(set.map(rep => rep.repTime));
+    if (createdAtDate > referenceDate) {
+
+      let sets = [];
+
+      for (let i = 0; i < detail.reps.length - 2; i++) {
+        let set = detail.reps.slice(i, i + 3);
+
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3) {
+          sets.push(set.map(rep => rep.repTime));
+        }
       }
-    }
 
-    let withinRangeCount = 0;
+      let withinRangeCount = 0;
 
-    for (let set of sets) {
-      let totalDuration = set[set.length - 1] - set[0];
-      let cprRate = (3) / (totalDuration / 60000);
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3) / ((totalDuration + 500) / 60000);
 
-      if (100 <= cprRate && cprRate <= 120) {
-        withinRangeCount++;
+        if (100 <= cprRate && cprRate <= 120) {
+          withinRangeCount++;
+        }
       }
+
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+      return percentageWithinRange;
     }
+    else {
 
-    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+      let sets = [];
 
-    return percentageWithinRange;
+      for (let i = 0; i < detail.reps.length - 2; i++) {
+        let set = detail.reps.slice(i, i + 3);
+
+        // Check if the set contains exactly 3 repTime values
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3) {
+          sets.push(set.map(rep => rep.repTime));
+        }
+      }
+
+      let withinRangeCount = 0;
+
+      for (let set of sets) {
+        let totalDuration = set[set.length - 1] - set[0];
+        let cprRate = (3) / (totalDuration / 60000);
+
+        if (100 <= cprRate && cprRate <= 120) {
+          withinRangeCount++;
+        }
+      }
+
+      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+      return percentageWithinRange;
+    }
   };
 
   const handleUserIdChange = (event) => {
@@ -124,7 +162,7 @@ const HomePage = () => {
   const handleTandC = (temp_data) => {
     // console.log(temp_data.length);
     if (temp_data.length === 0) {
-      const confirmed = window.confirm("Do you accept the terms and conditions?");
+      const confirmed = window.confirm("You will required to provide access to your camera, to provide real-time feedback. All data stored by the system will also be viewable to your assigned trainer. Note: NO PICTURES or VIDEOS are being stored by the application. Do you accept the terms and conditions?");
       if (confirmed) {
         setAcceptedTerms(true);
       } else {
@@ -164,9 +202,11 @@ const HomePage = () => {
       {!isDataFetched ? (
         <>
 
-          <Link to="/trainer">
-            <button className='button'>Trainer Log In</button>
+          {/* <Link to="/trainer"> */}
+          <Link to={`/landing`}>
+            <button className='button'><FontAwesomeIcon icon={faHome} /></button>
           </Link>
+          {/* </Link> */}
           <br />
           <div>
             <input className="input-container" type="text" value={userId} onChange={handleUserIdChange} placeholder="Enter User ID" />

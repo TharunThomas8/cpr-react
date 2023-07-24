@@ -13,6 +13,8 @@ import { faHome } from '@fortawesome/free-solid-svg-icons';
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faHandPaper } from "@fortawesome/free-solid-svg-icons";
+import { faChartLine } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faHandPaper);
 
@@ -656,7 +658,7 @@ const GameScreen = () => {
   return (
     <div className="App">
       <Link to={`/`}>
-        <button className='button'><FontAwesomeIcon icon={faHome} /></button>
+        <button className='button'><FontAwesomeIcon icon={faArrowLeft} /></button>
       </Link>
       <div className="webcamContainer">
         <Webcam
