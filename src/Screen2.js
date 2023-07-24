@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
-import { VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
+import { VictoryLabel, VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
 import { api_base } from './config';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
@@ -112,8 +112,10 @@ const Screen2 = () => {
       const chartContainer = popupWindow.document.getElementById("chart-container");
 
       // Calculate the minimum and maximum y-axis values
-      const minY = Math.min(...cprRates);
-      const maxY = Math.max(...cprRates);
+      // const minY = Math.min(...cprRates);
+      // const maxY = Math.max(...cprRates);
+      const minY = 40;
+      const maxY = 200;
 
       createRoot(chartContainer).render(
         <div>
@@ -353,6 +355,8 @@ const Screen2 = () => {
   i = 1;
 
   userData.cprDetails.forEach((detail, index) => {
+    // console.log(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }));
+
     if (detail.compOnly === selectedValue) {
       let sets = [];
 
@@ -391,9 +395,17 @@ const Screen2 = () => {
     }
   });
 
+  let dateLabels = [];
+  userData.cprDetails.forEach((detail, index) => {
+    if (detail.compOnly === selectedValue) {
+      dateLabels.push(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }))
+    }
+  });
+
+  // console.log(dateLabels);
 
   // console.log(feedbackTrueData);
-  // console.log(feedbackFalsenewCPRavg);
+  // console.log(feedbackTruenewCPRavg);
 
   // Pagination logic
   const PAGE_SIZE = 10;
@@ -469,7 +481,7 @@ const Screen2 = () => {
                     <span className="tooltip" data-tooltip="Date of Session">Date</span>
                   </th>
                   <th>
-                    <span className="tooltip" data-tooltip="Total Average CPR Rate">Rate</span>
+                    <span className="tooltip" data-tooltip="Total Average CPR Rate">Avg: Rate</span>
                   </th>
                   <th>
                     <span className="tooltip" data-tooltip="Percentage of Reps from 100 to 120 per min ">Optimal Reps %</span>
@@ -678,10 +690,23 @@ const Screen2 = () => {
               return (
                 <div className='chart-container'>
                   <VictoryChart theme={VictoryTheme.material}>
-                    <VictoryAxis tickFormat={() => ''} label="Session" />
+                    <VictoryAxis
+                      // tickValues={dateLabels}
+                      // tickFormat={(index) => dateLabels[index]}
+                      tickFormat={() => ''}
+                      label="Session"
+                      // tickLabelComponent={
+                      //   <VictoryLabel
+                      //     angle={-90}
+                      //     dx={-15} // Adjust this value to control the vertical spacing of the labels
+                      //     // textAnchor="end" // Anchor the text at the end to make it vertically displayed
+                      //     // margin = {2}
+                      //   />
+                      // }
+                    />
                     <VictoryAxis
                       dependentAxis
-                      label="new CPR Avg"
+                      label="Percentage of optimal CPR"
                       labelPlacement="vertical"
                       style={{
                         axisLabel: { padding: 35 },
@@ -689,6 +714,7 @@ const Screen2 = () => {
                         tickLabels: { fontSize: 12 },
                       }}
                       domain={[0, feedbackFalsenewCPRavg.length > 0 ? 100 : 1]}
+
                     />
                     <VictoryScatter
                       data={[...feedbackTruenewCPRavg]}

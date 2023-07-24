@@ -195,7 +195,7 @@ const HomePage = () => {
                   {data.map(item => (
                     <tr key={item._id}>
                       <td className={item.cprRate >= 100 && item.cprRate <= 120 ? 'green' : 'red'}>{item.cprRate.toFixed(0)}</td>
-                      <td>{item.cprFraction}</td>
+                      <td>{item.cprFraction.toFixed(0)}</td>
                       <td>
                         <div className="pie animate" style={{ '--p': optimalCPR(item), '--c': 'lightgreen' }}>
                           {optimalCPR(item).toFixed(0)}

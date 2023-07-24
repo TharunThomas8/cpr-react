@@ -31,14 +31,27 @@ const Leaderboard = () => {
 
   useEffect(() => {
     // Fetch the top scores data from the API
-    axios.get(api_base+'get-top-scores')
+    axios.get(api_base + 'get-top-scores')
       .then(response => {
-        // Update the state with the top scores data
-        setTopScores(response.data.topScores);
+        // Get the topScores object from the response
+        const topScores = response.data;
+
+        // Convert the topScores object into an array of objects
+        const topScoresObj = Object.values(topScores);
+        // console.log(topScoresArray[1]);
+        const topScoresArray = topScoresObj[1];
+
+        // Sort the topScoresArray in descending order based on gameScore
+        topScoresArray.sort((a, b) => b.topScore.gameScore - a.topScore.gameScore);
+
+        // Update the state with the sorted top scores data
+        
+        setTopScores(topScoresArray);
       })
       .catch(error => {
         console.log(error);
       });
+
   }, []);
 
   return (
@@ -49,25 +62,25 @@ const Leaderboard = () => {
         <p>No top scores available.</p>
       ) : (
         <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Username</th>
-              <th>Score (s)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topScores.map((score, index) => (
-              <tr key={score.userId}>
-                <td>{index + 1}</td>
-                <td>{score.userId}</td>
-                <td>{(score.topScore.gameScore / 1000).toFixed(3)}</td>
+          <table>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Username</th>
+                <th>Score (s)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {/* <Link to={`/`}>
+            </thead>
+            <tbody>
+              {topScores.map((score, index) => (
+                <tr key={score.userId}>
+                  <td>{index + 1}</td>
+                  <td>{score.userId}</td>
+                  <td>{(score.topScore.gameScore / 1000).toFixed(3)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* <Link to={`/`}>
           <button className='button' >Home</button>
         </Link> */}
         </div>
