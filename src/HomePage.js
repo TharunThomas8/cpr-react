@@ -97,6 +97,7 @@ const HomePage = () => {
             const responseData = response.data;
             // console.log(responseData);
             if (responseData.success) {
+              responseData.data.reverse();
               setData(responseData.data); // Access the CPR details array
               // console.log(responseData.data);
               handleTandC(responseData.data);

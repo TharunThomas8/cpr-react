@@ -397,7 +397,7 @@ const Screen2 = () => {
 
   let i = 1;
 
-  userData.cprDetails.forEach((detail, index) => {
+  userData.cprDetails.slice(-35).forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
       const dataPoint = { x: i, y: detail.cprRate };
       i++;
@@ -412,7 +412,7 @@ const Screen2 = () => {
   });
   i = 1;
 
-  userData.cprDetails.forEach((detail, index) => {
+  userData.cprDetails.slice(-35).forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
       const dataPoint = { x: i, y: detail.cprFraction };
       // console.log(dataPoint);
@@ -428,7 +428,7 @@ const Screen2 = () => {
 
   i = 1;
 
-  userData.cprDetails.forEach((detail, index) => {
+  userData.cprDetails.slice(-35).forEach((detail, index) => {
     // console.log(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }));
 
     if (detail.compOnly === selectedValue) {

@@ -93,7 +93,7 @@ const Trainer = () => {
 
     return (
         <div>
-            <Link to="/"><button className='button'><FontAwesomeIcon icon={faHome} /></button></Link>
+            <Link to="/landing"><button className='button'><FontAwesomeIcon icon={faHome} /></button></Link>
             {/* <h2>Users under Trainer</h2> */}
             {showForm ? (
                 <div>

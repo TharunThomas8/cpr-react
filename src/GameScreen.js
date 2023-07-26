@@ -697,7 +697,8 @@ const GameScreen = () => {
           <div
             className={`rateValue ${speedText === 'Maintain Pace' ? 'green-color' : speedText === ('Slow Down!' || 'Speed up!') ? 'red-color' : 'yellow-color'}`}
           >
-            {speedText} ({CPRrate})
+            {/* {speedText} ({CPRrate}) */}
+            {speedText}
           </div>
         </>
       )}

@@ -764,19 +764,29 @@ const Screen1 = () => {
             Rate: {speedText} ({CPRrate})
           </div> */}
           {/* <h4>Maintain 100-120</h4> */}
-          <div className="breathSeq">Breath Chain: {breathChain}</div>
+
+
+          {/* <div className="breathSeq">Breath Chain: {breathChain}</div> */}
 
           {/* <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
           <div>Down:{down}</div> */}
           {/* <div>Count:{num_compressions}</div> */}
-          <div
-            className={`rateValue ${speedText === 'Maintain Pace' ? 'green-color' :
+          {speedText == "" &&
+            <div className="breathText">
+              Begin
+            </div>
+          }
+          {breathText == "" && speedText !== "" &&
+            <div
+              className={`rateValue ${speedText === 'Maintain Pace' ? 'green-color' :
                 speedText === 'Slow Down!' ? 'red-color' :
                   speedText === 'Speed up!' ? 'red-color' : 'yellow-color'}`}
-          >
-            {speedText} ({CPRrate})
-          </div>
+            >
+              {/* {speedText} ({CPRrate}) */}
+              {speedText}
+            </div>
+          }
           {breathText !== "" &&
             <div className="breathText">{breathText} <FontAwesomeIcon icon={faWind} /></div>
           }
