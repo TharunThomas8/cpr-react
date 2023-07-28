@@ -600,11 +600,6 @@ const Screen1 = () => {
 
   const calculatefinalCPR = (repTimes) => {
 
-    const currentDate = new Date();
-    const referenceDate = new Date('2021-07-24');
-
-    if (currentDate > referenceDate) {
-
       let sets = [];
       let cprRates = [];
 
@@ -628,33 +623,7 @@ const Screen1 = () => {
       let avgCPRRate = totalCPRRate / cprRates.length;
 
       return avgCPRRate;
-    }
-    else {
 
-      let sets = [];
-      let cprRates = [];
-
-      for (let i = 0; i < repTimes.length - 2; i++) {
-        let set = repTimes.slice(i, i + 3);
-
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3) {
-          sets.push(set.map(rep => rep.repTime));
-        }
-      }
-
-      for (let set of sets) {
-        let totalDuration = set[2] - set[0];
-        let cprRate = 3 / (totalDuration / 60000);
-        cprRates.push(cprRate);
-      }
-
-      let totalCPRRate = cprRates.reduce((sum, rate) => sum + rate, 0);
-      let avgCPRRate = totalCPRRate / cprRates.length;
-
-      return avgCPRRate;
-    }
   }
 
 

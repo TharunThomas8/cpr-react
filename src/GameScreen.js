@@ -526,7 +526,7 @@ const GameScreen = () => {
           let totalDuration = last3RepTimes[2] - last3RepTimes[0];
 
           // Calculate the CPR rate
-          let cprRate = 3 / (totalDuration / 60000);
+          let cprRate = 3 / ((totalDuration + 500) / 60000);
 
           return cprRate;
         }
