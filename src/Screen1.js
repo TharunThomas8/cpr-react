@@ -735,7 +735,7 @@ const Screen1 = () => {
           {/* <h4>Maintain 100-120</h4> */}
 
 
-          <div className="breathSeq">Breath Chain: {breathChain}</div>
+          {/* <div className="breathSeq">Breath Chain: {breathChain}</div> */}
 
           {/* <div>Moving Regions:{regions}</div>
           <div>Up:{up}</div>
