@@ -397,7 +397,7 @@ const Screen2 = () => {
 
   let i = 1;
 
-  userData.cprDetails.slice(-35).forEach((detail, index) => {
+  userData.cprDetails.slice(-50).forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
       const dataPoint = { x: i, y: detail.cprRate };
       i++;
@@ -412,7 +412,7 @@ const Screen2 = () => {
   });
   i = 1;
 
-  userData.cprDetails.slice(-35).forEach((detail, index) => {
+  userData.cprDetails.slice(-50).forEach((detail, index) => {
     if (detail.compOnly === selectedValue) {
       const dataPoint = { x: i, y: detail.cprFraction };
       // console.log(dataPoint);
@@ -428,35 +428,36 @@ const Screen2 = () => {
 
   i = 1;
 
-  userData.cprDetails.slice(-35).forEach((detail, index) => {
+  userData.cprDetails.slice(-50).forEach((detail, index) => {
     // console.log(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }));
 
     if (detail.compOnly === selectedValue) {
-      let sets = [];
+      // let sets = [];
 
-      for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
-        let set = detail.reps.slice(i, i + 3 + extraSet);
+      // for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
+      //   let set = detail.reps.slice(i, i + 3 + extraSet);
 
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3 + extraSet) {
-          sets.push(set.map(rep => rep.repTime));
-        }
-      }
+      //   // Check if the set contains exactly 3 repTime values
+      //   let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      //   if (repTimeCount === 3 + extraSet) {
+      //     sets.push(set.map(rep => rep.repTime));
+      //   }
+      // }
 
-      let withinRangeCount = 0;
+      // let withinRangeCount = 0;
 
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3 + extraSet) / (totalDuration / 60000);
+      // for (let set of sets) {
+      //   let totalDuration = set[set.length - 1] - set[0];
+      //   let cprRate = (3 + extraSet) / (totalDuration / 60000);
 
-        if (100 - value <= cprRate && cprRate <= 120 + value) {
-          withinRangeCount++;
-        }
-      }
+      //   if (100 - value <= cprRate && cprRate <= 120 + value) {
+      //     withinRangeCount++;
+      //   }
+      // }
 
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+      // let percentageWithinRange = (withinRangeCount / sets.length) * 100;
 
+      let percentageWithinRange = optimalCPR(detail);
       const dataPoint = { x: i, y: percentageWithinRange };
 
       i++;
@@ -469,12 +470,12 @@ const Screen2 = () => {
     }
   });
 
-  let dateLabels = [];
-  userData.cprDetails.forEach((detail, index) => {
-    if (detail.compOnly === selectedValue) {
-      dateLabels.push(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }))
-    }
-  });
+  // let dateLabels = [];
+  // userData.cprDetails.forEach((detail, index) => {
+  //   if (detail.compOnly === selectedValue) {
+  //     dateLabels.push(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }))
+  //   }
+  // });
 
   // console.log(dateLabels);
 
