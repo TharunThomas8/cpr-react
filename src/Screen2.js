@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Link } from 'react-router-dom/cjs/react-router-dom.min';
-import { VictoryLabel, VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea } from 'victory';
+import { VictoryLabel, VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea, Background } from 'victory';
 import { api_base } from './config';
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
@@ -153,7 +153,7 @@ const Screen2 = () => {
       const maxY = 200;
 
       createRoot(chartContainer).render(
-        <div>
+        <div style={{ background: '#ddd' }}>
           <VictoryChart
             containerComponent={<VictoryContainer responsive={false} />}
             height={200}
