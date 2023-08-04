@@ -136,8 +136,10 @@ const Screen2 = () => {
         // If no popup window is open, open a new one and set the content
         popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
         const content = `
+        <div style={{ background: '#ddd' }}>
           <h2>CPR Details</h2>
           <div id="chart-container"></div>
+        </div>
           <!-- Rest of the content -->
         `;
         popupWindow.document.write(content);
