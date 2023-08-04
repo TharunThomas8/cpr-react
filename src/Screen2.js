@@ -126,7 +126,7 @@ const Screen2 = () => {
       if (popupWindow && !popupWindow.closed) {
         // If a popup window is already open, update the content
         const content = `
-        <div style={{ background: '#ddd' }}>
+        <div style="background-color: #ddd;">
           <h2>CPR Details</h2>
           <div id="chart-container"></div>
           <!-- Rest of the content -->
@@ -138,7 +138,7 @@ const Screen2 = () => {
         // If no popup window is open, open a new one and set the content
         popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
         const content = `
-        <div style={{ background: '#ddd' }}>
+        <div style="background-color: #ddd;">
           <h2>CPR Details</h2>
           <div id="chart-container"></div>
         </div>
