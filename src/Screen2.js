@@ -126,9 +126,11 @@ const Screen2 = () => {
       if (popupWindow && !popupWindow.closed) {
         // If a popup window is already open, update the content
         const content = `
+        <div style={{ background: '#ddd' }}>
           <h2>CPR Details</h2>
           <div id="chart-container"></div>
           <!-- Rest of the content -->
+        </div>
         `;
 
         popupWindow.document.body.innerHTML = content;
@@ -155,7 +157,7 @@ const Screen2 = () => {
       const maxY = 200;
 
       createRoot(chartContainer).render(
-        <div style={{ background: '#ddd' }}>
+        <div>
           <VictoryChart
             containerComponent={<VictoryContainer responsive={false} />}
             height={200}
