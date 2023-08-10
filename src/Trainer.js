@@ -79,7 +79,6 @@ const Trainer = () => {
     };
 
     useEffect(() => {
-        // Check if userId exists in sessionStorage
         const storedUserId = sessionStorage.getItem('trainerId');
         if (storedUserId) {
             setTrainerId(storedUserId);
@@ -94,7 +93,6 @@ const Trainer = () => {
     return (
         <div>
             <Link to="/landing"><button className='button'><FontAwesomeIcon icon={faHome} /></button></Link>
-            {/* <h2>Users under Trainer</h2> */}
             {showForm ? (
                 <div>
                     <input className='input-container' placeholder='Enter Trainer ID' type="text" value={trainerId} onChange={handleInputChange} />
@@ -102,9 +100,6 @@ const Trainer = () => {
                 </div>
             ) : (
                 <div>
-
-                    {/* <br /> */}
-
                     <button className='button' onClick={changeTrainerId}>Change Trainer ID</button>
                     <br />
                     <input className='input-container' placeholder='Enter New User ID' type="text" value={newUser} onChange={handleNewUserChange} />

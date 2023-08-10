@@ -8,7 +8,6 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { api_base, page_base, duration } from "./config";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faWind } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -25,14 +24,13 @@ let num_moving = 0;
 let last_frame = 0;
 let num_compressions = 0;
 let frame_no = 0;
-let prev_movement = 0; //-1: down, 0: stationary, 1: up
-let breathing_movement = 0; //not breathing
+let prev_movement = 0; 
+let breathing_movement = 0; 
 let time_since_compression = 0;
 let time_since_downward = 0;
 let breath_frames = 0;
 let comps_while_breathing = 0;
 let down_since_last_up = false;
-// let ltot = 0;
 let showCountdown = true;
 let speedText = "";
 let currentSpeech = null;
@@ -42,7 +40,6 @@ let compressions_in_phase = 0;
 let breathBlocker = false;
 let prevBloc = false;
 let breathText = "";
-let finalCPR = 0;
 let repsArray = [];
 
 
@@ -54,7 +51,6 @@ const Screen1 = () => {
   const [regions, setRegions] = useState(0);
   const [up, setUp] = useState(0);
   const [down, setDown] = useState(0);
-
   const [countdown, setCountdown] = useState(5);
   const [startCountdown, setStartCountdown] = React.useState(false);
   const [breathChain, setBreathChain] = useState([]);
@@ -62,7 +58,6 @@ const Screen1 = () => {
   const startTimeRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState('With Feedback');
   const [cOnly, setCOnly] = useState(false);
-  // const [finalCPR, setfinalCPR] = useState(0);
 
   const handleOptionChange = (event) => {
     setSelectedOption(event);
@@ -81,8 +76,6 @@ const Screen1 = () => {
 
   useEffect(() => {
 
-    // setStartCountdown(false);
-
     weights = new Array(1000 * 1000).fill(0);
     average_left = 0;
     average_right = 0;
@@ -90,14 +83,13 @@ const Screen1 = () => {
     last_frame = 0;
     num_compressions = 0;
     frame_no = 0;
-    prev_movement = 0; //-1: down, 0: stationary, 1: up
-    breathing_movement = 0; //not breathing
+    prev_movement = 0; 
+    breathing_movement = 0; 
     time_since_compression = 0;
     time_since_downward = 0;
     breath_frames = 0;
     comps_while_breathing = 0;
     down_since_last_up = false;
-    // let ltot = 0;
     showCountdown = true;
     speedText = "";
     currentSpeech = null;
@@ -106,36 +98,27 @@ const Screen1 = () => {
     compressions_in_phase = 0;
     breathBlocker = false;
     prevBloc = false;
-    // CPRrate = 0;
     finalCPR = 0;
     repsArray = [];
-
-    // const history = useHistory();
-
 
     if (startCountdown) {
 
       const interval = setInterval(captureFrame, 20);
 
-      // Countdown logic
       const countdownInterval = setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
       }, 1000);
 
       const countdownTimeout = setTimeout(() => {
         showCountdown = false;
-        // setTot(0);
         clearInterval(countdownInterval);
 
-
-        // Create a new speech synthesis utterance
         const utterance = new SpeechSynthesisUtterance("Begin");
-        // Play the text as speech
         speechSynthesis.speak(utterance);
 
         startTimeRef.current = performance.now();
-        console.log("Start time: ", startTimeRef.current);
-        console.log(userId);
+        // console.log("Start time: ", startTimeRef.current);
+        // console.log(userId);
 
         sendDataAndNavigate();
       }, 5000);
@@ -150,14 +133,11 @@ const Screen1 = () => {
 
 
   const sendDataAndNavigate = () => {
-    // Wait for 60 seconds
     setTimeout(() => {
       try {
-        // Send the data as a POST request
         let json_data = {
           userId: userId,
           cprRate: calculatefinalCPR(repsArray),
-          // cprFraction: ((((performance.now() - startTimeRef.current) - breathTotal) / (performance.now() - startTimeRef.current)) * 100).toFixed(3),
           cprFraction: calculateCPRFraction(repsArray),
           compression: num_compressions,
           totalTime: (performance.now() - startTimeRef.current) / 1000,
@@ -167,11 +147,9 @@ const Screen1 = () => {
           reps: repsArray
         };
 
-        // console.log(json_data);
 
         axios.post(api_base + 'save', json_data)
           .then(() => {
-            // Navigate to another URL
             window.location.href = page_base;
           })
           .catch(error => {
@@ -187,7 +165,6 @@ const Screen1 = () => {
   let prevMat = null;
 
   function startTimer() {
-    // Start a timer
     // console.log('Timer started!');
     const timer = setTimeout(() => {
       // console.log('Timer completed!');
@@ -195,27 +172,24 @@ const Screen1 = () => {
       breathText = "";
       compressions_in_phase = 0;
       handlecprRate(CPRrate, true);
-    }, 10000); // 12 seconds
+    }, 10000); 
 
-    // Cancel the timer before it completes
-    // clearTimeout(timer);
   }
 
   const drawOpticalFlow = (flow) => {
 
-    let totalUp = 0;       //total upward movement in frame
-    let totalDown = 0;     //total downward movement in frame
-    let totalLeft = 0;     //total left movement in frame
-    let totalRight = 0;    //total right movement in frame
-    let curr_movement = 0; //0: static, 1: up, -1: down
+    let totalUp = 0;       
+    let totalDown = 0;   
+    let totalLeft = 0;  
+    let totalRight = 0;  
+    let curr_movement = 0; 
     let moving_regions = 0;
     let non_moving = 0;
 
-    //calculate displacement for subset of pixels
     for (let row = SPACING / 2; row < flow.rows; row += SPACING) {
       for (let column = SPACING / 2; column < flow.cols; column += SPACING) {
         const flowData = flow.data32F;
-        const index = (row * flow.cols + column) * 2; // Multiply by 2 to access x and y components
+        const index = (row * flow.cols + column) * 2; 
 
         const fxy0 = flowData[index];
         const fxy1 = flowData[index + 1];
@@ -223,9 +197,6 @@ const Screen1 = () => {
         const old_weight = weights[row * flow.cols + column];
         let new_weight;
 
-        // console.log(fxy);
-
-        // 0.5 is the movement threshold
         if (fxy0 > 0.5) {
           // arrowedLine(display, Point(column, row), Point(cvRound(column + fxy1 * 3), cvRound(row + fxy0 * 3)), green, 1, 8, 0, .5);
           totalDown += fxy0 * old_weight;
@@ -260,15 +231,6 @@ const Screen1 = () => {
       }
     }
 
-    // if (moving_regions > 16) {
-    //   setRegions(moving_regions);
-    //   if (totalUp > totalDown) {
-    //     setUp(totalUp.toFixed(2));
-    //   }
-    //   else {
-    //     setDown(totalDown.toFixed(2));
-    //   }
-    // }
 
     if (
       moving_regions > 16 &&
@@ -330,9 +292,6 @@ const Screen1 = () => {
               compressions_in_phase = 0;
               setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
             }
-            // console.log(cOnly)
-
-
 
             breath_frames = 0;
             time_since_compression = 0;
@@ -341,7 +300,6 @@ const Screen1 = () => {
         }
       } else {
         breath_frames = 0;
-        // update average lateral movement
         average_left = ((average_left * num_moving) + totalLeft) / (num_moving + 1);
         average_right = ((average_right * num_moving) + totalRight) / (num_moving + 1);
         num_moving++;
@@ -430,44 +388,32 @@ const Screen1 = () => {
     cv.cvtColor(sm2, prevGray, cv.COLOR_RGBA2GRAY);
     cv.cvtColor(sm1, currentGray, cv.COLOR_RGBA2GRAY);
     cv.calcOpticalFlowFarneback(
-      prevGray,     // Previous grayscale image (Mat)
-      currentGray,     // Current grayscale image (Mat)
-      flow,      // Optical flow result (Mat)
-      0.4,       // Pyramid scale factor (0.5 is a common value)
-      1,         // Number of pyramid layers
-      12,        // Window size
-      2,         // Number of iterations at each pyramid level
-      8,         // Size of the pixel neighborhood used to find polynomial expansion in each pixel
-      1.2,       // Standard deviation used to smooth derivatives
-      0          // Flags (set to 0)
+      prevGray,     
+      currentGray,     
+      flow,     
+      0.4,      
+      1,       
+      12,     
+      2,       
+      8,     
+      1.2,    
+      0        
     );
 
 
 
     let number = drawOpticalFlow(flow);
     if (number !== -1) {
-      // const endTime = performance.now();
-
-      // setTot(prevTot => prevTot + 1);
-      // ltot = ltot + 1;
-      // const cprRate = (num_compressions / (((endTime - startTimeRef.current) - breathTotal) / 60000));
       const cprRate = calculateCPR(repsArray);
-      // console.log(num_compressions, endTime - startTimeRef.current, breathTotal);
-      // console.log(breathTotal, endTime - startTimeRef.current);
 
       if (cprRate !== -1) {
         handlecprRate(cprRate);
-
-        // console.log(repsArray);
-
         setCPRrate(cprRate.toFixed(3));
         finalCPR = cprRate.toFixed(3);
       }
 
 
     }
-
-
 
     prevGray.delete();
     currentGray.delete();
@@ -483,7 +429,6 @@ const Screen1 = () => {
   const speakText = (text, control = 0) => {
 
     if (selectedOption === 'Without Feedback') return;
-    // If there is currently playing speech, stop it
     if (!breathBlocker) {
       if (currentSpeech) {
         if (!prevBloc) {
@@ -491,13 +436,10 @@ const Screen1 = () => {
         }
       }
 
-      // Create a new speech synthesis utterance
       const utterance = new SpeechSynthesisUtterance(text);
 
-      // Play the text as speech
       speechSynthesis.speak(utterance);
 
-      // Update the currentSpeech variable
       currentSpeech = utterance;
 
       if (control === 1) {
@@ -509,23 +451,17 @@ const Screen1 = () => {
       breathBlocker = false;
 
       prevBloc = true;
-      // Create a new speech synthesis utterance
       const utterance = new SpeechSynthesisUtterance(text);
 
-      // Play the text as speech
       speechSynthesis.speak(utterance);
 
-      // Update the currentSpeech variable
       currentSpeech = utterance;
     }
   };
 
-  // console.log(repTimes);
 
   const calculateCPR = (repTimes) => {
-    // console.log(
-
-    // );
+  
     let last3RepTimes = [];
 
     for (let i = repTimes.length - 1; i >= 0; i--) {
@@ -535,10 +471,8 @@ const Screen1 = () => {
         last3RepTimes.unshift(rep.repTime);
 
         if (last3RepTimes.length === 3) {
-          // Calculate the total duration
           let totalDuration = last3RepTimes[2] - last3RepTimes[0];
 
-          // Calculate the CPR rate
           let cprRate = 3 / ((totalDuration + 500) / 60000);
 
           return cprRate;
@@ -551,9 +485,6 @@ const Screen1 = () => {
     return -1;
   }
 
-  // const test_rep = [{repTime:1500},{repTime:2000},{repTime:2500}]
-  // console.log(calculateCPR(test_rep));
-
   const calculateCPRFraction = (repTimes) => {
     let breathingTime = 0;
     let currentTime = performance.now() - startTimeRef.current;
@@ -565,34 +496,25 @@ const Screen1 = () => {
         let breathStartTime = rep.breathStartTime;
         let breathEndTime;
 
-        // Find the nearest following breathEndTime
         for (let j = i + 1; j < repTimes.length; j++) {
           if (repTimes[j].hasOwnProperty("breathEndTime")) {
             breathEndTime = repTimes[j].breathEndTime;
-            i = j; // Update the outer loop index
+            i = j;
             break;
           }
         }
 
-        // If no breathEndTime found, use current time
         if (!breathEndTime) {
           breathEndTime = currentTime;
-          // console.log(breathingTime, breathEndTime, breathStartTime);
-
         }
 
         breathingTime += breathEndTime - breathStartTime;
-        // console.log(breathingTime);
       }
     }
-
-    // pause code execution for 1 second
-
 
     let totalTime = currentTime - repTimes[0].repTime;
     let cprFraction = ((totalTime - breathingTime) / totalTime) * 100;
 
-    // round cprFraction to 3 decimal places using Fixed-point notation
     cprFraction = cprFraction.toFixed(3);
 
     return cprFraction;
@@ -606,7 +528,6 @@ const Screen1 = () => {
       for (let i = 0; i < repTimes.length - 2; i++) {
         let set = repTimes.slice(i, i + 3);
 
-        // Check if the set contains exactly 3 repTime values
         let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
         if (repTimeCount === 3) {
           sets.push(set.map(rep => rep.repTime));
@@ -623,26 +544,21 @@ const Screen1 = () => {
       let avgCPRRate = totalCPRRate / cprRates.length;
 
       return avgCPRRate;
-
   }
-
 
   if (compressions_in_phase === 30 && cOnly === false) {
     speakText("Begin breathing", 1);
     breathText = "Perform breathing";
     startTimer();
   }
-  // Create the canvas and context outside the captureFrame function
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  // Reuse the same Image object
   const img = new Image();
 
   const captureFrame = () => {
 
     if (showCountdown) return;
-    // Get front facing camera image
     try {
       const imageSrc = webcamRef.current.getScreenshot();
 
@@ -728,19 +644,6 @@ const Screen1 = () => {
       {startCountdown && showCountdown && <div className="countdown">{countdown}</div>}
       {!showCountdown && selectedOption === "With Feedback" && (
         <>
-          {/* <div className="totValue">Count: {num_compressions}</div> */}
-          {/* <div className="rateValue">
-            Rate: {speedText} ({CPRrate})
-          </div> */}
-          {/* <h4>Maintain 100-120</h4> */}
-
-
-          {/* <div className="breathSeq">Breath Chain: {breathChain}</div> */}
-
-          {/* <div>Moving Regions:{regions}</div>
-          <div>Up:{up}</div>
-          <div>Down:{down}</div> */}
-          {/* <div>Count:{num_compressions}</div> */}
           {speedText == "" &&
             <div className="breathText">
               Begin
@@ -752,15 +655,12 @@ const Screen1 = () => {
                 speedText === 'Slow Down!' ? 'red-color' :
                   speedText === 'Speed up!' ? 'red-color' : 'yellow-color'}`}
             >
-              {/* {speedText} ({CPRrate}) */}
               {speedText}
             </div>
           }
           {breathText !== "" &&
             <div className="breathText">{breathText} <FontAwesomeIcon icon={faWind} /></div>
           }
-
-
         </>
       )}
     </div>

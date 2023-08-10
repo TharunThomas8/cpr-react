@@ -6,7 +6,6 @@ import './HomePage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 
-// const api_base = "http://127.0.0.1:5000";
 
 const HomePage = () => {
   const [data, setData] = useState([]);
@@ -16,71 +15,38 @@ const HomePage = () => {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [userExists, setUserExists] = useState(true);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  // console.log(userId);
 
   const optimalCPR = (detail) => {
 
-    const referenceDate = new Date("2023-07-24");
-    const createdAtDate = new Date(detail.createdAt);
 
-    if (createdAtDate > referenceDate) {
 
-      let sets = [];
+    let sets = [];
 
-      for (let i = 0; i < detail.reps.length - 2; i++) {
-        let set = detail.reps.slice(i, i + 3);
+    for (let i = 0; i < detail.reps.length - 2; i++) {
+      let set = detail.reps.slice(i, i + 3);
 
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3) {
-          sets.push(set.map(rep => rep.repTime));
-        }
+      // Check if the set contains exactly 3 repTime values
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
       }
-
-      let withinRangeCount = 0;
-
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3) / ((totalDuration + 500) / 60000);
-
-        if (100 <= cprRate && cprRate <= 120) {
-          withinRangeCount++;
-        }
-      }
-
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-
-      return percentageWithinRange;
     }
-    else {
 
-      let sets = [];
+    let withinRangeCount = 0;
 
-      for (let i = 0; i < detail.reps.length - 2; i++) {
-        let set = detail.reps.slice(i, i + 3);
+    for (let set of sets) {
+      let totalDuration = set[set.length - 1] - set[0];
+      let cprRate = (3) / ((totalDuration + 500) / 60000);
 
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3) {
-          sets.push(set.map(rep => rep.repTime));
-        }
+      if (100 <= cprRate && cprRate <= 120) {
+        withinRangeCount++;
       }
-
-      let withinRangeCount = 0;
-
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3) / (totalDuration / 60000);
-
-        if (100 <= cprRate && cprRate <= 120) {
-          withinRangeCount++;
-        }
-      }
-
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-
-      return percentageWithinRange;
     }
+
+    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+    return percentageWithinRange;
+
   };
 
   const handleUserIdChange = (event) => {
@@ -89,27 +55,22 @@ const HomePage = () => {
 
   const fetchData = () => {
     if (userId) {
-      // Make Axios GET request with the user ID
 
       try {
         axios.get(api_base + 'get-last/' + userId)
           .then(response => {
             const responseData = response.data;
-            // console.log(responseData);
             if (responseData.success) {
               responseData.data.reverse();
-              setData(responseData.data); // Access the CPR details array
-              // console.log(responseData.data);
+              setData(responseData.data);
               handleTandC(responseData.data);
               setIsDataFetched(true);
               setUserExists(true);
             } else {
-              // console.log("Failed");
               setUserExists(false);
             }
           })
           .catch(error => {
-            // console.log("Failed With Error");
             console.log(error);
             setUserExists(false);
           });
@@ -121,9 +82,7 @@ const HomePage = () => {
         axios.get(api_base + 'get-recent-score/' + userId)
           .then(response => {
             const responseData = response.data;
-            // console.log(responseData);
             if (responseData.success) {
-              // console.log(responseData.recentScore);
               setRecentScore(responseData.recentScore.gameScore);
             }
           })
@@ -141,9 +100,7 @@ const HomePage = () => {
         axios.get(api_base + 'get-top-score/' + userId)
           .then(response => {
             const responseData = response.data;
-            // console.log(responseData);
             if (responseData.success) {
-              // console.log(responseData.data);
               setTopScore(responseData.topScore);
             }
           }
@@ -161,7 +118,6 @@ const HomePage = () => {
   };
 
   const handleTandC = (temp_data) => {
-    // console.log(temp_data.length);
     if (temp_data.length === 0) {
       const confirmed = window.confirm("You will required to provide access to your camera, to provide real-time feedback. All data stored by the system will also be viewable to your assigned trainer. Note: NO PICTURES or VIDEOS are being stored by the application. Do you accept the terms and conditions?");
       if (confirmed) {
@@ -179,7 +135,6 @@ const HomePage = () => {
     setIsDataFetched(false);
     setUserExists(true);
 
-    // Check if userId exists in sessionStorage
     const storedUserId = sessionStorage.getItem('userId');
     if (storedUserId) {
       setUserId(storedUserId);
@@ -199,15 +154,12 @@ const HomePage = () => {
 
   return (
     <div>
-      {/* <h2>Home Page</h2> */}
       {!isDataFetched ? (
         <>
 
-          {/* <Link to="/trainer"> */}
           <Link to={`/landing`}>
             <button className='button'><FontAwesomeIcon icon={faHome} /></button>
           </Link>
-          {/* </Link> */}
           <br />
           <div>
             <input className="input-container" type="text" value={userId} onChange={handleUserIdChange} placeholder="Enter User ID" />
@@ -220,7 +172,6 @@ const HomePage = () => {
           <button className='button' onClick={changeUser}>Change User</button>
           <br />
           <p>Welcome {userId}</p>
-          {/* Display the fetched data as a table */}
           {data.length === 0 ? (<p>No data available.</p>) :
             (<div className="table-container">
               <table>

@@ -66,11 +66,8 @@
     font-size: 48px;
     font-weight: bold;
     text-align: center;
-    /* background-color: #3273dc; */
     color: #0c0d61;
     padding: 20px;
-    /* border-radius: 10px; */
-    /* box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); */
     animation: pulse 1s infinite;
   }
   
@@ -90,7 +87,6 @@
     font-size: 48px;
     padding: auto;
     text-align: center;
-    /* color: #0c0d61; */
     font-weight: bold;
     margin: auto;
   }

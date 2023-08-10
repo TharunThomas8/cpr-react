@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 import { VictoryLabel, VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea, Background } from 'victory';
 import { api_base } from './config';
-import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import './Screen2.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons';
-// import React from "react";
 import { useHistory } from "react-router-dom";
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 
-
-// const api_base = "http://127.0.0.1:5000";
 const GoBackButton = () => {
   const history = useHistory();
 
@@ -46,7 +40,6 @@ const Screen2 = () => {
     setSelectedValue(value === 'true'); // Convert string value to boolean
   };
 
-
   const handleGraphChange = (event) => {
     setSelectedGraph(event.target.value);
   };
@@ -58,73 +51,31 @@ const Screen2 = () => {
     let sets = [];
     let cprRates = [];
 
-    function setChange(e) {
-      addSet = parseInt(e.target.value);
-      calculateSetsAndCprRates();
-      updatePopupWindowContent();
-      // console.log(addSet);
-    }
-
     function calculateSetsAndCprRates() {
-      // console.log(detail)
 
-      const createdAtDate = (new Date(detail.createdAt));
-      const referenceDate = new Date('2023-07-24');
+      sets = [];
+      cprRates = [];
 
-      // console.log(createdAtDate)
-      // console.log(referenceDate);
-      if (createdAtDate.getTime() > referenceDate.getTime()) {
-        // 'createdAtDate' is after July 24, 2023
+      for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
+        let set = repTimes.slice(i, i + 3 + addSet);
 
-        sets = [];
-        cprRates = [];
-
-        for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
-          let set = repTimes.slice(i, i + 3 + addSet);
-
-          let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-          if (repTimeCount === 3 + addSet) {
-            sets.push(set.map(rep => rep.repTime));
-          }
+        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+        if (repTimeCount === 3 + addSet) {
+          sets.push(set.map(rep => rep.repTime));
         }
-
-        for (let set of sets) {
-          let totalDuration = set[2 + addSet] - set[0];
-          let cprRate = (3 + addSet) / ((totalDuration+500) / 60000);
-          cprRates.push(cprRate);
-        }
-
-        // console.log(addSet);
       }
-      else {
-        // 'createdAtDate' is after July 24, 2023
 
-        sets = [];
-        cprRates = [];
-
-        for (let i = 0; i < repTimes.length - 2 - addSet; i++) {
-          let set = repTimes.slice(i, i + 3 + addSet);
-
-          let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-          if (repTimeCount === 3 + addSet) {
-            sets.push(set.map(rep => rep.repTime));
-          }
-        }
-
-        for (let set of sets) {
-          let totalDuration = set[2 + addSet] - set[0];
-          let cprRate = (3 + addSet) / (totalDuration / 60000);
-          cprRates.push(cprRate);
-        }
-
-        // console.log(addSet);
+      for (let set of sets) {
+        let totalDuration = set[2 + addSet] - set[0];
+        let cprRate = (3 + addSet) / ((totalDuration + 500) / 60000);
+        cprRates.push(cprRate);
       }
+
     }
 
     function updatePopupWindowContent() {
       const popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
       if (popupWindow && !popupWindow.closed) {
-        // If a popup window is already open, update the content
         const content = `
         <div style="background-color: #ddd;">
           <h2>CPR Details</h2>
@@ -135,7 +86,6 @@ const Screen2 = () => {
 
         popupWindow.document.body.innerHTML = content;
       } else {
-        // If no popup window is open, open a new one and set the content
         popupWindow = window.open('', 'CPR Details', 'width=400,height=300');
         const content = `
         <div style="background-color: #ddd;">
@@ -147,20 +97,16 @@ const Screen2 = () => {
         popupWindow.document.write(content);
       }
 
-      // Create the VictoryChart element dynamically
       const chartContainer = popupWindow.document.getElementById("chart-container");
 
-      // Calculate the minimum and maximum y-axis values
-      // const minY = Math.min(...cprRates);
-      // const maxY = Math.max(...cprRates);
-      const minY = 40;
-      const maxY = 200;
+      const minY = 80;
+      const maxY = 140;
 
       createRoot(chartContainer).render(
         <div>
           <VictoryChart
             containerComponent={<VictoryContainer responsive={false} />}
-            height={200}
+            height={400}
             domain={{ y: [minY - 10, maxY + 10] }}
           >
             <VictoryAxis
@@ -198,18 +144,6 @@ const Screen2 = () => {
               }}
             />
           </VictoryChart>
-          {/* <p>Extra Set Range</p>
-          <div>
-            <input
-              type="range"
-              min={0}
-              max={7}
-              value={addSet}
-              onChange={setChange}
-              style={{ width: '200px' }}
-            />
-          </div>
-          <p>Consecutive Set: {3 + addSet}</p> */}
         </div>
       );
     }
@@ -220,14 +154,8 @@ const Screen2 = () => {
 
 
   const handleChange = (e) => {
-
-    // console.log(value);
     setValue(parseInt(e.target.value));
 
-  };
-
-  const handleExtraChange = (e) => {
-    setExtraSet(parseInt(e.target.value));
   };
 
   const handlePageChange = (pageNumber) => {
@@ -237,68 +165,29 @@ const Screen2 = () => {
   const optimalCPR = (detail) => {
     let sets = [];
 
-    // console.log(detail,createdAt);
-    const createdAtDate = (new Date(detail.createdAt));
-    const referenceDate = new Date('2023-07-24');
+    for (let i = 0; i < detail.reps.length - 2; i++) {
+      let set = detail.reps.slice(i, i + 3);
 
-    // console.log(createdAtDate)
-    // console.log(referenceDate);
-    if (createdAtDate.getTime() > referenceDate.getTime()) {
-      // 'createdAtDate' is after July 24, 2023
-      // console.log("Date comes after July 24, 2023");
-      for (let i = 0; i < detail.reps.length - 2; i++) {
-        let set = detail.reps.slice(i, i + 3);
-
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3) {
-          sets.push(set.map(rep => rep.repTime));
-        }
+      let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
+      if (repTimeCount === 3) {
+        sets.push(set.map(rep => rep.repTime));
       }
-
-      let withinRangeCount = 0;
-
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3) / ((totalDuration + 500) / 60000);
-
-        if (100 - value <= cprRate && cprRate <= 120 + value) {
-          withinRangeCount++;
-        }
-      }
-
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-
-      return percentageWithinRange;
-    } else {
-      // 'createdAtDate' is on or before July 24, 2023
-      // console.log("Date comes on or before July 24, 2023");
-      for (let i = 0; i < detail.reps.length - 2; i++) {
-        let set = detail.reps.slice(i, i + 3);
-
-        // Check if the set contains exactly 3 repTime values
-        let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-        if (repTimeCount === 3) {
-          sets.push(set.map(rep => rep.repTime));
-        }
-      }
-
-      let withinRangeCount = 0;
-
-      for (let set of sets) {
-        let totalDuration = set[set.length - 1] - set[0];
-        let cprRate = (3) / (totalDuration / 60000);
-
-        if (100 - value <= cprRate && cprRate <= 120 + value) {
-          withinRangeCount++;
-        }
-      }
-
-      let percentageWithinRange = (withinRangeCount / sets.length) * 100;
-
-      return percentageWithinRange;
     }
 
+    let withinRangeCount = 0;
+
+    for (let set of sets) {
+      let totalDuration = set[set.length - 1] - set[0];
+      let cprRate = (3) / ((totalDuration + 500) / 60000);
+
+      if (100 - value <= cprRate && cprRate <= 120 + value) {
+        withinRangeCount++;
+      }
+    }
+
+    let percentageWithinRange = (withinRangeCount / sets.length) * 100;
+
+    return percentageWithinRange;
 
   };
 
@@ -306,7 +195,6 @@ const Screen2 = () => {
 
     let repTimes = detail.reps;
     let breathingTime = 0;
-    // let currentTime = performance.now() - startTimeRef.current;
     if (repTimes[repTimes.length - 1].hasOwnProperty("breathStartTime")) {
       repTimes.push({ breathEndTime: repTimes[repTimes.length - 1].breathStartTime + 5000 });
     }
@@ -317,45 +205,24 @@ const Screen2 = () => {
         let breathStartTime = rep.breathStartTime;
         let breathEndTime;
 
-        // Find the nearest following breathEndTime
         for (let j = i + 1; j < repTimes.length; j++) {
           if (repTimes[j].hasOwnProperty("breathEndTime")) {
             breathEndTime = repTimes[j].breathEndTime;
-            i = j; // Update the outer loop index
+            i = j; 
             break;
           }
         }
 
-        // If no breathEndTime found, use current time
-        // if (!breathEndTime) {
-        //   // breathEndTime = breathStartTime + 5000;
-        //   // console.log(breathingTime, breathEndTime, breathStartTime);
-        //   breathingTime = 5000;
-
-        // }
-        // else {
 
         breathingTime += breathEndTime - breathStartTime;
-        // console.log(breathingTime);
-        // }
       }
     }
-
-    // pause code execution for 1 second
-
-
-    // console.log(repTimes[repTimes.length - 1].repTime - repTimes[0].repTime);
-    const lastObject = repTimes[repTimes.length - 1]; // Get the last object
-    const lastValue = Object.values(lastObject)[0]; // Get the value of the last property
+    const lastObject = repTimes[repTimes.length - 1];
+    const lastValue = Object.values(lastObject)[0]; 
 
     let totalTime = lastValue - repTimes[0].repTime;
-    // console.log(totalTime);
     let cprFraction = ((totalTime - breathingTime) / totalTime) * 100;
-
-    // round cprFraction to 3 decimal places using Fixed-point notation
     cprFraction = cprFraction.toFixed(0);
-
-    // console.log(cprFraction);
 
     return cprFraction;
   }
@@ -365,11 +232,9 @@ const Screen2 = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // console.log(userId);
         const response = await axios.get(api_base + 'get-user-data/' + userId);
         const responseData = response.data;
         if (responseData.success) {
-          // console.log(responseData.data.cprDetails[105].compOnly);
           setUserData(responseData.data);
         } else {
           setError(responseData.message);
@@ -433,33 +298,8 @@ const Screen2 = () => {
   i = 1;
 
   userData.cprDetails.slice(-50).forEach((detail, index) => {
-    // console.log(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }));
 
     if (detail.compOnly === selectedValue) {
-      // let sets = [];
-
-      // for (let i = 0; i < detail.reps.length - 2 - extraSet; i++) {
-      //   let set = detail.reps.slice(i, i + 3 + extraSet);
-
-      //   // Check if the set contains exactly 3 repTime values
-      //   let repTimeCount = set.filter(rep => rep.hasOwnProperty("repTime")).length;
-      //   if (repTimeCount === 3 + extraSet) {
-      //     sets.push(set.map(rep => rep.repTime));
-      //   }
-      // }
-
-      // let withinRangeCount = 0;
-
-      // for (let set of sets) {
-      //   let totalDuration = set[set.length - 1] - set[0];
-      //   let cprRate = (3 + extraSet) / (totalDuration / 60000);
-
-      //   if (100 - value <= cprRate && cprRate <= 120 + value) {
-      //     withinRangeCount++;
-      //   }
-      // }
-
-      // let percentageWithinRange = (withinRangeCount / sets.length) * 100;
 
       let percentageWithinRange = optimalCPR(detail);
       const dataPoint = { x: i, y: percentageWithinRange };
@@ -474,68 +314,27 @@ const Screen2 = () => {
     }
   });
 
-  // let dateLabels = [];
-  // userData.cprDetails.forEach((detail, index) => {
-  //   if (detail.compOnly === selectedValue) {
-  //     dateLabels.push(new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" }))
-  //   }
-  // });
-
-  // console.log(dateLabels);
-
-  // console.log(feedbackTrueData);
-  // console.log(feedbackTruenewCPRavg);
-
-  // Pagination logic
   const PAGE_SIZE = 10;
   const startIndex = (currentPage - 1) * PAGE_SIZE;
   const endIndex = startIndex + PAGE_SIZE;
 
-  // const paginatedData = userData.cprDetails.slice().reverse().slice(startIndex, endIndex);
   const paginatedData = [...userData.cprDetails]
     .reverse()
     .filter((detail) => detail.compOnly === selectedValue)
     .slice(startIndex, endIndex);
 
-  // console.log(paginatedData);
-
-  // const pageCount = Math.ceil(paginatedData.length / PAGE_SIZE);
-
   const getPaginatedLen = () => {
-    // console.log(userData.cprDetails.filter((detail) => detail.compOnly === selectedValue).length);
     return Math.ceil(userData.cprDetails.filter((detail) => detail.compOnly === selectedValue).length / PAGE_SIZE);
   };
 
   return (
     <div className="container">
-      {/* <Link to={`/`}>
-        <button className='button'><FontAwesomeIcon icon={faHome} /></button>
-      </Link> */}
+      
       <GoBackButton />
 
       {userData ? (
         <div>
-          {/* <h4>Welcome! User {userData.userId}</h4> */}
-          {/* <div className="radio-container" >
-            <label>
-              <input
-                type="radio"
-                value="true"
-                checked={selectedValue === true}
-                onChange={handleRadioChange}
-              />
-              Compression Only
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="false"
-                checked={selectedValue === false}
-                onChange={handleRadioChange}
-              />
-              Compression + Breaths
-            </label>
-          </div> */}
+          
           <div className="radio-container">
             <div
               className={`radio-button ${selectedValue === true ? 'active' : ''}`}
@@ -551,7 +350,6 @@ const Screen2 = () => {
             </div>
           </div>
 
-          {/* <center><h3>CPR Details</h3></center> */}
           <div className="table-container">
             <table>
               <thead>
@@ -568,9 +366,6 @@ const Screen2 = () => {
                   <th>
                     <span className="tooltip" data-tooltip="Fraction of time given to chest compressions is to breaths">Fraction</span>
                   </th>
-                  {/* <th>
-                    <span className="tooltip" data-tooltip="Total No:of Compressions">Compressions</span>
-                  </th> */}
                   <th>
                     <span className="tooltip" data-tooltip="Feedback provided by the system">Feedback</span>
                   </th>
@@ -585,14 +380,12 @@ const Screen2 = () => {
                   <tr key={index}>
                     <td>{new Date(detail.createdAt).toLocaleDateString("en-IE", { timeZone: "Europe/Dublin" })}</td>
                     <td className={detail.cprRate >= 100 && detail.cprRate <= 120 ? 'green' : 'red'}>{detail.cprRate.toFixed(0)}</td>
-                    {/* <td className={optimalCPR(detail) >= 60 ? 'green' : 'red'}>{optimalCPR(detail).toFixed(0)}</td> */}
                     <td>
                       <div className="pie animate" style={{ '--p': optimalCPR(detail), '--c': 'lightgreen' }}>
                         {optimalCPR(detail).toFixed(0)}
                       </div>
                     </td>
                     <td>{(detail.cprFraction > 98) ? calculateFrac(detail) : detail.cprFraction.toFixed(0)}</td>
-                    {/* <td>{detail.compression}</td> */}
                     <td>{detail.feedback ? 'Yes' : 'No'}</td>
                     <td>
                       <button className='button' onClick={() => openPopupWindow(detail)}>
@@ -604,7 +397,6 @@ const Screen2 = () => {
               </tbody>
             </table>
           </div>
-          {/* Pagination */}
           <div className="pagination">
             {Array.from({ length: getPaginatedLen() }, (_, index) => (
               <button
@@ -616,7 +408,6 @@ const Screen2 = () => {
               </button>
             ))}
           </div>
-          {/* Make a dropdown to select between the 2 graphs */}
           <p>Select the graph
             <select className="select-dropdown" value={selectedGraph} onChange={handleGraphChange}>
               <option value="cprRate">Final CPR Rate</option>
@@ -635,7 +426,7 @@ const Screen2 = () => {
                       label="CPR Rate"
                       labelPlacement="vertical"
                       style={{
-                        axisLabel: { padding: 35 }, // Adjust the padding as needed
+                        axisLabel: { padding: 35 }, 
                         ticks: { stroke: 'transparent' },
                         tickLabels: { fontSize: 12 },
                       }}
@@ -682,8 +473,8 @@ const Screen2 = () => {
                       }}
                     />
                     <VictoryLegend
-                      x={50} // Adjust the x position according to your needs
-                      y={0} // Adjust the y position according to your needs
+                      x={50} 
+                      y={0} 
                       orientation="vertical"
                       gutter={20}
                       style={{ labels: { fontSize: 12 } }}
@@ -705,7 +496,7 @@ const Screen2 = () => {
                       label="CPR Fraction"
                       labelPlacement="vertical"
                       style={{
-                        axisLabel: { padding: 35 }, // Adjust the padding as needed
+                        axisLabel: { padding: 35 }, 
                         ticks: { stroke: 'transparent' },
                         tickLabels: { fontSize: 12 },
                       }}
@@ -752,8 +543,8 @@ const Screen2 = () => {
                       }}
                     />
                     <VictoryLegend
-                      x={50} // Adjust the x position according to your needs
-                      y={0} // Adjust the y position according to your needs
+                      x={50} 
+                      y={0} 
                       orientation="vertical"
                       gutter={20}
                       style={{ labels: { fontSize: 12 } }}
@@ -770,18 +561,9 @@ const Screen2 = () => {
                 <div className='chart-container'>
                   <VictoryChart theme={VictoryTheme.material}>
                     <VictoryAxis
-                      // tickValues={dateLabels}
-                      // tickFormat={(index) => dateLabels[index]}
+                      
                       tickFormat={() => ''}
                       label="Session"
-                    // tickLabelComponent={
-                    //   <VictoryLabel
-                    //     angle={-90}
-                    //     dx={-15} // Adjust this value to control the vertical spacing of the labels
-                    //     // textAnchor="end" // Anchor the text at the end to make it vertically displayed
-                    //     // margin = {2}
-                    //   />
-                    // }
                     />
                     <VictoryAxis
                       dependentAxis
@@ -830,22 +612,8 @@ const Screen2 = () => {
                       style={{ width: '75%' }}
                     />
                   </div>
-                  {/* <p>Min: {100 - value}</p>
-                  <p>Max: {value + 120}</p> */}
-
-                  {/* <p>Consecutive Set: {3 + extraSet}</p>
-                  <div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={7}
-                      value={extraSet}
-                      onChange={handleExtraChange}
-                      style={{ width: '75%' }}
-                    />
-                  </div> */}
+                  
                 </div>
-
 
               );
             }
