@@ -4,7 +4,7 @@ import axios from 'axios';
 import { VictoryLabel, VictoryChart, VictoryContainer, VictoryScatter, VictoryAxis, VictoryTheme, VictoryLegend, VictoryLine, VictoryArea, Background } from 'victory';
 import { api_base } from './config';
 import { createRoot } from 'react-dom/client';
-import './Screen2.css';
+import './Report.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons';
 import { useHistory } from "react-router-dom";

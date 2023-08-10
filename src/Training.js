@@ -41,6 +41,7 @@ let breathBlocker = false;
 let prevBloc = false;
 let breathText = "";
 let repsArray = [];
+let finalCPR = 0;
 
 
 
