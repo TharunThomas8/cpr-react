@@ -43,6 +43,7 @@ let prevBloc = false;
 let repsArray = [];
 let gameStarted = false;
 let gameTime = 0;
+let finalCPR = 0;
 
 
 
@@ -144,17 +145,6 @@ const GameScreen = () => {
 
   let prevMat = null;
 
-  function startTimer() {
-    // console.log('Timer started!');
-    const timer = setTimeout(() => {
-      // console.log('Timer completed!');
-      speakText("End Breathing", 2);
-      breathText = "";
-      compressions_in_phase = 0;
-      handlecprRate(CPRrate, true);
-    }, 5000); // 5000 milliseconds = 5 seconds
-
-  }
 
   const drawOpticalFlow = (flow) => {
 
@@ -233,7 +223,6 @@ const GameScreen = () => {
           breathTotal += performance.now() - breathStart;
           breathStart = 0;
           repsArray.push({ breathEndTime: performance.now() - startTimeRef.current });
-          setBreathChain(prevBreathChain => [...prevBreathChain, "E"]);
         }
 
         last_frame = -1;
@@ -270,7 +259,6 @@ const GameScreen = () => {
               breathStart = performance.now();
               repsArray.push({ breathStartTime: performance.now() - startTimeRef.current });
               compressions_in_phase = 0;
-              setBreathChain(prevBreathChain => [...prevBreathChain, "S"]);
             }
             // console.log(cOnly)
 
@@ -485,11 +473,6 @@ const GameScreen = () => {
   }
 
 
-  if (compressions_in_phase === 30 && cOnly === false) {
-    speakText("Begin breathing", 1);
-    breathText = "Perform breathing";
-    startTimer();
-  }
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
